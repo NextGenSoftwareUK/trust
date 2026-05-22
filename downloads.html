@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Documents — SovereignTrust</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/main.css">
+<script src="/js/auth.js"></script>
+<script>requireAuth();</script>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">
+    <div class="nav-logo-mark">S</div>
+    <div class="nav-logo-text">SovereignTrust</div>
+  </a>
+  <div class="nav-links" id="navLinks">
+    <a class="nav-link" href="/education.html">Education</a>
+    <a class="nav-link" href="/dashboard.html">Dashboard</a>
+    <a class="nav-link" href="/login.html">Sign in</a>
+    <a class="nav-cta" href="/register.html">Create Account</a>
+  </div>
+  <button class="nav-hamburger" onclick="toggleMobileMenu()" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="downloads-wrap">
+  <div class="success-banner">
+    <div class="success-icon">✓</div>
+    <div>
+      <h2>Payment Confirmed</h2>
+      <p>Your documents have been generated and are ready to download. A confirmation email has been sent to james@example.com.</p>
+    </div>
+  </div>
+
+  <h2 style="font-size:24px; color:var(--navy); margin-bottom:8px;">Your Documents</h2>
+  <p style="font-size:15px; color:var(--text-muted); margin-bottom:28px; font-weight:300;">The Harrison Family Trust · Generated 21 May 2025</p>
+
+  <div class="download-card">
+    <div class="download-info">
+      <div class="download-file-icon pdf-icon">PDF</div>
+      <div>
+        <div class="download-name">Express Private Trust Deed</div>
+        <div class="download-meta">Harrison_Family_Trust_Deed.pdf · 2.4 MB</div>
+      </div>
+    </div>
+    <button class="btn-download">Download →</button>
+  </div>
+
+  <div class="download-card">
+    <div class="download-info">
+      <div class="download-file-icon docx-icon">DOC</div>
+      <div>
+        <div class="download-name">Trust Deed (Editable)</div>
+        <div class="download-meta">Harrison_Family_Trust_Deed.docx · 0.8 MB</div>
+      </div>
+    </div>
+    <button class="btn-download">Download →</button>
+  </div>
+
+  <div class="download-card">
+    <div class="download-info">
+      <div class="download-file-icon pdf-icon">PDF</div>
+      <div>
+        <div class="download-name">Guidance Notes</div>
+        <div class="download-meta">Trust_Guidance_Notes.pdf · 1.1 MB</div>
+      </div>
+    </div>
+    <button class="btn-download">Download →</button>
+  </div>
+
+  <div style="background:var(--cream-dark); border:1px solid var(--grey-light); border-radius:var(--radius-lg); padding:24px 28px; margin-top:32px;">
+    <h3 style="font-size:16px; color:var(--navy); margin-bottom:8px;">Important Next Steps</h3>
+    <p style="font-size:14px; color:var(--text-mid); line-height:1.8; font-weight:300;">These documents are templates prepared from the information you provided. Before signing or acting upon these documents, you should: (1) have them reviewed by a qualified legal professional in your jurisdiction, (2) ensure proper execution in accordance with local legal requirements, and (3) obtain independent legal, tax, and financial advice.</p>
+  </div>
+
+  <div style="text-align:center; margin-top:32px;">
+    <a class="btn-navy" href="/dashboard.html" style="padding:12px 28px;">Go to My Dashboard →</a>
+  </div>
+</div>
+
+<!-- LUMINA -->
+<div class="lumina-float" id="lumina">
+  <div class="lumina-panel" id="luminaPanel">
+    <div class="lumina-header">
+      <div class="lumina-avatar">✨</div>
+      <div>
+        <div class="lumina-name">Lumina</div>
+        <div class="lumina-sub">Trust Document Assistant</div>
+      </div>
+      <button class="lumina-close" onclick="toggleLumina()">×</button>
+    </div>
+    <div class="lumina-body">
+      <div class="lumina-msg">Congratulations on generating your trust documents! Remember to have these reviewed by a qualified legal professional before signing. Do you have any questions?</div>
+      <div class="lumina-disclaimer" style="margin-top:12px;">I explain concepts and assist with document preparation only. I cannot provide legal, tax, or financial advice.</div>
+    </div>
+  </div>
+  <button class="lumina-btn" onclick="toggleLumina()"><span>✨</span></button>
+</div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>

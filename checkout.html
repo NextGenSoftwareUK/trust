@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Complete Your Order — SovereignTrust</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/main.css">
+<script src="/js/auth.js"></script>
+<script>requireAuth();</script>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">
+    <div class="nav-logo-mark">S</div>
+    <div class="nav-logo-text">SovereignTrust</div>
+  </a>
+  <div class="nav-links" id="navLinks">
+    <a class="nav-link" href="/education.html">Education</a>
+    <a class="nav-link" href="/dashboard.html">Dashboard</a>
+    <a class="nav-link" href="/login.html">Sign in</a>
+    <a class="nav-cta" href="/register.html">Create Account</a>
+  </div>
+  <button class="nav-hamburger" onclick="toggleMobileMenu()" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="checkout-wrap">
+  <!-- PAYMENT FORM -->
+  <div>
+    <h1 class="checkout-title">Complete Your Order</h1>
+    <p class="checkout-sub">Your trust documents will be generated immediately upon payment confirmation.</p>
+    <div class="checkout-section-label">Billing Details</div>
+    <div class="field-group">
+      <label class="field-label">Full Name</label>
+      <input type="text" class="field-input" placeholder="As it appears on your card" value="James Harrison">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Email Address</label>
+      <input type="email" class="field-input" placeholder="Receipt will be sent here" value="james@example.com">
+    </div>
+    <div class="checkout-section-label">Payment Details</div>
+    <div class="field-group">
+      <label class="field-label">Card Number</label>
+      <input type="text" class="field-input" placeholder="1234 5678 9012 3456" maxlength="19">
+    </div>
+    <div class="card-row">
+      <div class="field-group">
+        <label class="field-label">Expiry Date</label>
+        <input type="text" class="field-input" placeholder="MM / YY" maxlength="7">
+      </div>
+      <div class="field-group">
+        <label class="field-label">CVC</label>
+        <input type="text" class="field-input" placeholder="123" maxlength="4">
+      </div>
+    </div>
+    <div class="stripe-badge">
+      <svg viewBox="0 0 60 25" xmlns="http://www.w3.org/2000/svg"><text y="18" font-size="16" fill="#635BFF" font-family="sans-serif" font-weight="bold">stripe</text></svg>
+      Payments secured and processed by Stripe
+    </div>
+    <button class="btn-navy" style="width:100%; padding:16px; margin-top:24px; font-size:16px;" onclick="window.location='/downloads.html'">Pay £111.00 →</button>
+    <div style="font-size:12px; color:var(--text-muted); text-align:center; margin-top:12px; font-weight:300;">🔒 256-bit SSL encryption · Your card details are never stored</div>
+  </div>
+
+  <!-- ORDER SUMMARY -->
+  <div class="checkout-summary">
+    <h3>Order Summary</h3>
+    <div class="summary-item"><span style="color:var(--text-muted);">Express Trust Deed Package</span><span>£111.00</span></div>
+    <div style="font-size:12px; color:var(--text-muted); margin:-4px 0 12px; font-weight:300;">For: The Harrison Family Trust</div>
+    <div class="summary-item"><span style="color:var(--text-muted);">VAT (0%)</span><span>£0.00</span></div>
+    <div class="summary-total"><span>Total</span><span>£111.00</span></div>
+    <div class="secure-note">Documents generated immediately upon successful payment confirmation. A receipt will be emailed to you.</div>
+    <div style="margin-top:20px; padding:14px; background:var(--cream); border-radius:var(--radius-md);">
+      <div style="font-size:12px; color:var(--text-muted); font-weight:300; line-height:1.6;">By completing payment you confirm you have read and agree to our Terms of Service and understand that this platform provides educational document preparation only, not legal advice.</div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>

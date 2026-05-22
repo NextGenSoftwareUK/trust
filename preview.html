@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preview Trust Deed — SovereignTrust</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/main.css">
+<script src="/js/auth.js"></script>
+<script>requireAuth();</script>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">
+    <div class="nav-logo-mark">S</div>
+    <div class="nav-logo-text">SovereignTrust</div>
+  </a>
+  <div class="nav-links" id="navLinks">
+    <a class="nav-link" href="/education.html">Education</a>
+    <a class="nav-link" href="/dashboard.html">Dashboard</a>
+    <a class="nav-link" href="/login.html">Sign in</a>
+    <a class="nav-cta" href="/register.html">Create Account</a>
+  </div>
+  <button class="nav-hamburger" onclick="toggleMobileMenu()" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- PREVIEW BAR -->
+<div class="preview-bar">
+  <div class="preview-bar-label">Document Preview — <em>PREVIEW — NOT FINAL EXECUTED DOCUMENT</em></div>
+  <div class="preview-bar-actions">
+    <a class="btn-outline" style="color:var(--white); border-color:rgba(255,255,255,0.3); padding:8px 18px; font-size:14px;" href="/builder.html">← Edit</a>
+    <a class="btn-gold" style="padding:8px 20px; font-size:14px; width:auto;" href="/checkout.html">Proceed to Payment →</a>
+  </div>
+</div>
+
+<div class="preview-layout">
+  <!-- DOCUMENT -->
+  <div class="preview-doc">
+    <div class="preview-watermark">PREVIEW ONLY</div>
+    <h2>EXPRESS PRIVATE TRUST DEED</h2>
+    <div class="doc-center">Prepared using SovereignTrust.net · Educational Document Preparation</div>
+    <h3>Trust Identification</h3>
+    <div class="doc-field"><div class="doc-field-label">Trust Name</div><div class="doc-field-val">The Harrison Family Trust</div></div>
+    <div class="doc-field"><div class="doc-field-label">Date of Deed</div><div class="doc-field-val">21st May 2025</div></div>
+    <div class="doc-field"><div class="doc-field-label">Governing Law</div><div class="doc-field-val">The Laws of England &amp; Wales</div></div>
+    <div class="doc-field"><div class="doc-field-label">Initial Trust Property</div><div class="doc-field-val">£10 (ten pounds sterling)</div></div>
+    <h3>The Settlor</h3>
+    <div class="doc-field"><div class="doc-field-label">Name</div><div class="doc-field-val">James Edward Harrison</div></div>
+    <div class="doc-field"><div class="doc-field-label">Address</div><div class="doc-field-val">14 Elmwood Close, Oxford, OX2 7BH, England</div></div>
+    <h3>The Trustee(s)</h3>
+    <div class="doc-field"><div class="doc-field-label">Trustee 1</div><div class="doc-field-val">Sarah Margaret Harrison, 22 Birchwood Avenue, Oxford, OX3 9PL, England</div></div>
+    <h3>The Beneficiaries</h3>
+    <div class="doc-field"><div class="doc-field-label">Beneficiary 1</div><div class="doc-field-val">Thomas James Harrison (Son) — Fixed Beneficiary</div></div>
+    <div class="doc-field"><div class="doc-field-label">Beneficiary 2</div><div class="doc-field-val">Emily Claire Harrison (Daughter) — Fixed Beneficiary</div></div>
+    <h3>Trust Purpose</h3>
+    <p style="font-size:14px; color:var(--text-mid); line-height:1.8;">To hold, manage and distribute the trust assets for the benefit of the named beneficiaries in accordance with the terms set out herein and any Memorandum of Wishes provided by the Settlor from time to time.</p>
+    <h3>Execution</h3>
+    <p style="font-size:14px; color:var(--text-muted); font-style:italic;">Signature blocks, witness attestation, and execution clauses will appear in the final generated document.</p>
+    <div style="margin-top:40px; padding:16px; background:var(--cream); border-radius:var(--radius-sm); font-size:12px; color:var(--text-muted); line-height:1.7; text-align:center;">This is a preview only and does not constitute a final executed legal document. This document has been generated using SovereignTrust.net for educational and administrative document preparation purposes only. It does not constitute legal advice.</div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div>
+    <div class="preview-sidebar-card">
+      <h3>Order Summary</h3>
+      <div class="price-line"><span style="color:var(--text-muted);">Express Trust Deed Package</span><span>£111.00</span></div>
+      <div class="price-line"><span style="color:var(--text-muted);">PDF Trust Deed</span><span style="color:var(--success);">✓ Included</span></div>
+      <div class="price-line"><span style="color:var(--text-muted);">Editable DOCX</span><span style="color:var(--success);">✓ Included</span></div>
+      <div class="price-line"><span style="color:var(--text-muted);">Dashboard Access</span><span style="color:var(--success);">✓ Included</span></div>
+      <div class="price-line total"><span>Total</span><span>£111.00</span></div>
+      <a class="btn-gold" style="margin-top:16px;" href="/checkout.html">Pay £111 Securely →</a>
+      <div style="font-size:12px; color:var(--text-muted); text-align:center; margin-top:12px;">🔒 Secured by Stripe</div>
+    </div>
+    <div class="preview-sidebar-card">
+      <h3 style="font-size:14px;">Included Documents</h3>
+      <div style="font-size:13px; color:var(--text-muted); margin-bottom:8px; font-weight:300;">After payment you will receive:</div>
+      <div style="font-size:14px; color:var(--text-mid); padding:8px 0; border-bottom:1px solid var(--grey-light);">📄 Express Private Trust Deed (PDF)</div>
+      <div style="font-size:14px; color:var(--text-mid); padding:8px 0; border-bottom:1px solid var(--grey-light);">📝 Editable Trust Deed (DOCX)</div>
+      <div style="font-size:14px; color:var(--text-mid); padding:8px 0;">📚 Guidance Notes (PDF)</div>
+    </div>
+  </div>
+</div>
+
+<!-- LUMINA -->
+<div class="lumina-float" id="lumina">
+  <div class="lumina-panel" id="luminaPanel">
+    <div class="lumina-header">
+      <div class="lumina-avatar">✨</div>
+      <div>
+        <div class="lumina-name">Lumina</div>
+        <div class="lumina-sub">Trust Document Assistant</div>
+      </div>
+      <button class="lumina-close" onclick="toggleLumina()">×</button>
+    </div>
+    <div class="lumina-body">
+      <div class="lumina-msg">Your trust deed is looking great! Have any questions about the document before you proceed to payment?</div>
+      <div class="lumina-disclaimer" style="margin-top:12px;">I explain concepts and assist with document preparation only. I cannot provide legal, tax, or financial advice.</div>
+    </div>
+  </div>
+  <button class="lumina-btn" onclick="toggleLumina()"><span>✨</span></button>
+</div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>
