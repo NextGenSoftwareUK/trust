@@ -167,6 +167,7 @@ nav {
 }
 .btn-secondary:hover { border-color: rgba(255,255,255,0.5); color: var(--white); }
 .hero-disclaimer {
+  padding-top:10px;
   margin-top: 90px;
   font-size: 12px;
   color: rgba(255,255,255,0.4);
