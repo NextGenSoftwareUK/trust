@@ -71,11 +71,12 @@ module.exports = async function handler(req, res) {
     //   });
     // }
 
+    const username  = email;
+
     // 2. Authenticate with OASIS (uses username, not email)
     const { res: authRes, json: authData } = await oasisFetch('/api/avatar/authenticate', {
       method: 'POST',
-      //body: JSON.stringify({ username, password })
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ username, password })
     });
 
     if (!authRes.ok || authData?.result?.isError) {
