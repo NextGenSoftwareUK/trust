@@ -76,10 +76,10 @@ module.exports = async function handler(req, res) {
     // }
 
     // // 2. Parse name
-    // const nameParts = fullName.trim().split(/\s+/);
-    // const firstName = nameParts[0] || 'User';
-    // const lastName  = nameParts.slice(1).join(' ') || 'User';
-    // const username  = generateUsername(fullName, email);
+    const nameParts = fullName.trim().split(/\s+/);
+    const firstName = nameParts[0] || 'User';
+    const lastName  = nameParts.slice(1).join(' ') || 'User';
+    const username  = generateUsername(fullName, email);
 
     // 3. Register avatar with OASIS
     const { res: regRes, json: regData } = await oasisFetch('/api/Avatar/register', {
