@@ -28,7 +28,7 @@ async function oasisFetch(path, options = {}) {
     }
   });
   const text = await res.text();
-  console.log("response = ", res);
+  //console.log("response = ", res);
   console.log("text = ", text);
   let json = null;
   try { json = JSON.parse(text); } catch {}
