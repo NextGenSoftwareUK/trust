@@ -80,7 +80,8 @@ module.exports = async function handler(req, res) {
     });
 
     if (!authRes.ok || authData?.result?.isError) {
-      return res.status(401).json({ error: 'Incorrect password. Please try again.' });
+      //return res.status(401).json({ error: 'Incorrect password. Please try again.' });
+      return res.status(401).json({ error: authData?.result?.message || 'Authentication failed. Please try again.' });
     }
 
     const token = extractJwt(authData);
