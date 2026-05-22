@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 
-const OASIS_API = process.env.OASIS_API_URL || 'https://api.oasisweb4.one';
+//const OASIS_API = process.env.OASIS_API_URL || 'https://api.oasisweb4.one';
+const OASIS_API = process.env.OASIS_API_URL || 'https://oasisapionode-hseudrexdvbhenhv.canadacentral-01.azurewebsites.net';
 
 // ─── Helpers ───────────────────────────────────────────
 function generateUsername(fullName, email) {
