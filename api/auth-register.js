@@ -40,6 +40,7 @@ async function oasisFetch(path, options = {}) {
     }
   });
   const text = await res.text();
+  console.log("text = ", text);
   let json = null;
   try { json = JSON.parse(text); } catch {}
   return { res, json };
@@ -62,23 +63,23 @@ module.exports = async function handler(req, res) {
 
   try {
     // 1. Check if avatar already exists with this email
-    const { res: lookupRes, json: lookupData } = await oasisFetch(
-      `/api/Avatar/get-by-email/${encodeURIComponent(email)}`
-    );
-    if (lookupRes.ok) {
-      const existing = extractAvatar(lookupData);
-      if (existing?.avatarId || existing?.id) {
-        return res.status(409).json({
-          error: 'An account with this email already exists. Please sign in instead.'
-        });
-      }
-    }
+    // const { res: lookupRes, json: lookupData } = await oasisFetch(
+    //   `/api/Avatar/get-by-email/${encodeURIComponent(email)}`
+    // );
+    // if (lookupRes.ok) {
+    //   const existing = extractAvatar(lookupData);
+    //   if (existing?.avatarId || existing?.id) {
+    //     return res.status(409).json({
+    //       error: 'An account with this email already exists. Please sign in instead.'
+    //     });
+    //   }
+    // }
 
-    // 2. Parse name
-    const nameParts = fullName.trim().split(/\s+/);
-    const firstName = nameParts[0] || 'User';
-    const lastName  = nameParts.slice(1).join(' ') || 'User';
-    const username  = generateUsername(fullName, email);
+    // // 2. Parse name
+    // const nameParts = fullName.trim().split(/\s+/);
+    // const firstName = nameParts[0] || 'User';
+    // const lastName  = nameParts.slice(1).join(' ') || 'User';
+    // const username  = generateUsername(fullName, email);
 
     // 3. Register avatar with OASIS
     const { res: regRes, json: regData } = await oasisFetch('/api/Avatar/register', {
