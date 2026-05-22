@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Account — SovereignTrust</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/main.css">
+<script src="/js/auth.js"></script>
+<script>redirectIfAuthed();</script>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">
+    <div class="nav-logo-mark">S</div>
+    <div class="nav-logo-text">SovereignTrust</div>
+  </a>
+  <div class="nav-links" id="navLinks">
+    <a class="nav-link" href="/education.html">Education</a>
+    <a class="nav-link" href="/login.html">Sign in</a>
+    <a class="nav-cta" href="/register.html">Create Account</a>
+  </div>
+  <button class="nav-hamburger" onclick="toggleMobileMenu()" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="nav-logo-mark" style="margin:0 auto 16px; width:40px; height:40px; font-size:20px;">S</div>
+      <h2>Create your account</h2>
+      <p>Begin your trust documentation journey</p>
+    </div>
+
+    <div class="alert-error" id="regError"></div>
+
+    <div class="field-group">
+      <label class="field-label" for="regName">Full name</label>
+      <input id="regName" type="text" class="field-input" placeholder="Your full legal name" autocomplete="name">
+    </div>
+    <div class="field-group">
+      <label class="field-label" for="regEmail">Email address</label>
+      <input id="regEmail" type="email" class="field-input" placeholder="you@example.com" autocomplete="email">
+    </div>
+    <div class="field-group">
+      <label class="field-label" for="regPassword">Password</label>
+      <input id="regPassword" type="password" class="field-input" placeholder="Minimum 8 characters" autocomplete="new-password">
+    </div>
+
+    <button id="regBtn" class="btn-block" onclick="handleRegister()">Create Account &amp; Continue</button>
+
+    <div class="auth-footer">
+      Already have an account? <a href="/login.html">Sign in</a>
+    </div>
+    <div class="disclaimer-small">By creating an account you confirm you have read and agree to our Terms of Service and Privacy Policy. This platform provides educational and administrative document preparation support only — not legal, tax, or financial advice.</div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+  async function handleRegister() {
+    const fullName = document.getElementById('regName').value.trim();
+    const email    = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value;
+    const btn      = document.getElementById('regBtn');
+    const errorEl  = document.getElementById('regError');
+
+    errorEl.textContent = '';
+
+    if (!fullName || !email || !password) {
+      errorEl.textContent = 'Please fill in all fields.';
+      return;
+    }
+    if (password.length < 8) {
+      errorEl.textContent = 'Password must be at least 8 characters.';
+      return;
+    }
+
+    btn.textContent = 'Creating account…';
+    btn.disabled = true;
+
+    try {
+      const res  = await fetch('/api/auth-register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullName, email, password })
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Registration failed. Please try again.');
+      }
+
+      setSession(data.session);
+      window.location.href = '/education.html';
+
+    } catch (err) {
+      errorEl.textContent = err.message;
+      btn.textContent = 'Create Account & Continue';
+      btn.disabled = false;
+    }
+  }
+
+  // Allow Enter key to submit
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') handleRegister();
+  });
+</script>
+</body>
+</html>

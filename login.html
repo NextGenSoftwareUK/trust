@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In — SovereignTrust</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/main.css">
+<script src="/js/auth.js"></script>
+<script>redirectIfAuthed();</script>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">
+    <div class="nav-logo-mark">S</div>
+    <div class="nav-logo-text">SovereignTrust</div>
+  </a>
+  <div class="nav-links" id="navLinks">
+    <a class="nav-link" href="/education.html">Education</a>
+    <a class="nav-link" href="/login.html">Sign in</a>
+    <a class="nav-cta" href="/register.html">Create Account</a>
+  </div>
+  <button class="nav-hamburger" onclick="toggleMobileMenu()" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="nav-logo-mark" style="margin:0 auto 16px; width:40px; height:40px; font-size:20px;">S</div>
+      <h2>Welcome back</h2>
+      <p>Sign in to continue to your trust dashboard</p>
+    </div>
+
+    <div class="alert-error" id="loginError"></div>
+
+    <div class="field-group">
+      <label class="field-label" for="loginEmail">Email address</label>
+      <input id="loginEmail" type="email" class="field-input" placeholder="you@example.com" autocomplete="email">
+    </div>
+    <div class="field-group">
+      <label class="field-label" for="loginPassword">Password</label>
+      <input id="loginPassword" type="password" class="field-input" placeholder="Your password" autocomplete="current-password">
+    </div>
+
+    <button id="loginBtn" class="btn-block" onclick="handleLogin()">Sign In</button>
+
+    <div class="auth-footer">
+      <a href="#">Forgot password?</a> &nbsp;·&nbsp; Don't have an account? <a href="/register.html">Register</a>
+    </div>
+    <div class="disclaimer-small">By signing in you confirm you have read and agree to our Terms of Service and Privacy Policy. This platform is for educational and administrative document preparation only.</div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+  async function handleLogin() {
+    const email    = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const btn      = document.getElementById('loginBtn');
+    const errorEl  = document.getElementById('loginError');
+
+    errorEl.textContent = '';
+
+    if (!email || !password) {
+      errorEl.textContent = 'Please enter your email and password.';
+      return;
+    }
+
+    btn.textContent = 'Signing in…';
+    btn.disabled = true;
+
+    try {
+      const res  = await fetch('/api/auth-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Sign in failed. Please try again.');
+      }
+
+      setSession(data.session);
+
+      const params = new URLSearchParams(window.location.search);
+      window.location.href = params.get('next') || '/dashboard.html';
+
+    } catch (err) {
+      errorEl.textContent = err.message;
+      btn.textContent = 'Sign In';
+      btn.disabled = false;
+    }
+  }
+
+  // Allow Enter key to submit
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') handleLogin();
+  });
+</script>
+</body>
+</html>

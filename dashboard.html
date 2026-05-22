@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Dashboard — SovereignTrust</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/main.css">
+<script src="/js/auth.js"></script>
+<script>requireAuth();</script>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">
+    <div class="nav-logo-mark">S</div>
+    <div class="nav-logo-text">SovereignTrust</div>
+  </a>
+  <div class="nav-links" id="navLinks">
+    <a class="nav-link" href="/education.html">Education</a>
+    <a class="nav-link" href="/dashboard.html">Dashboard</a>
+    <a class="nav-link" href="/login.html">Sign in</a>
+    <a class="nav-cta" href="/register.html">Create Account</a>
+  </div>
+  <button class="nav-hamburger" onclick="toggleMobileMenu()" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="dashboard-wrap">
+  <div class="dashboard-header">
+    <div>
+      <h1>My Dashboard</h1>
+      <p id="dashGreet">Welcome back. Manage your trust profiles and documents.</p>
+    </div>
+    <a class="btn-navy" href="/builder.html">+ New Trust</a>
+  </div>
+
+  <div style="margin-bottom:12px; font-size:12px; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); font-weight:500;">Your Trust Profiles</div>
+
+  <!-- Trust 1 — Generated -->
+  <div class="trust-card">
+    <div>
+      <div class="trust-name">The Harrison Family Trust</div>
+      <div class="trust-meta">Created 21 May 2025 · England &amp; Wales · £10 settled sum</div>
+      <div style="margin-top:12px;"><span class="status-badge status-generated">● Generated</span></div>
+      <div class="trust-actions">
+        <a class="btn-sm btn-navy" href="/downloads.html">Downloads</a>
+        <a class="btn-sm btn-outline" href="/preview.html">Preview</a>
+        <a class="btn-sm btn-outline" href="/builder.html">Edit</a>
+      </div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:13px; color:var(--text-muted); font-weight:300; margin-bottom:8px;">Payment</div>
+      <div style="font-size:18px; color:var(--navy); font-weight:500;">£111</div>
+      <div style="font-size:12px; color:var(--success);">Confirmed</div>
+    </div>
+  </div>
+
+  <!-- Trust 2 — Draft -->
+  <div class="trust-card" style="opacity:0.7;">
+    <div>
+      <div class="trust-name">Family Discretionary Trust</div>
+      <div class="trust-meta">Last edited 14 May 2025 · Draft — 60% complete</div>
+      <div style="margin-top:12px;"><span class="status-badge status-draft">● Draft</span></div>
+      <div class="trust-actions">
+        <a class="btn-sm btn-navy" href="/builder.html">Continue →</a>
+      </div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:13px; color:var(--text-muted); font-weight:300; margin-bottom:8px;">Completion</div>
+      <div style="font-size:18px; color:var(--gold); font-weight:500;">60%</div>
+    </div>
+  </div>
+
+  <!-- LOCKED MODULES -->
+  <div class="locked-modules">
+    <h2>Additional Document Modules</h2>
+    <p>More document types are coming soon. Each module will be available as an add-on to your existing trust profile.</p>
+    <div class="locked-grid">
+      <div class="locked-card"><h3>Asset Assignment</h3><p>Transfer assets formally into your trust</p><div class="coming-tag">Coming Soon</div></div>
+      <div class="locked-card"><h3>Trustee Minutes</h3><p>Record formal trustee decisions</p><div class="coming-tag">Coming Soon</div></div>
+      <div class="locked-card"><h3>Trustee Appointment</h3><p>Appoint a new trustee formally</p><div class="coming-tag">Coming Soon</div></div>
+      <div class="locked-card"><h3>Trustee Removal</h3><p>Remove a trustee in accordance with the deed</p><div class="coming-tag">Coming Soon</div></div>
+      <div class="locked-card"><h3>Bank Resolution</h3><p>Formal resolution for bank account opening</p><div class="coming-tag">Coming Soon</div></div>
+      <div class="locked-card"><h3>Memorandum of Wishes</h3><p>Document your intentions for trustees</p><div class="coming-tag">Coming Soon</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- LUMINA -->
+<div class="lumina-float" id="lumina">
+  <div class="lumina-panel" id="luminaPanel">
+    <div class="lumina-header">
+      <div class="lumina-avatar">✨</div>
+      <div>
+        <div class="lumina-name">Lumina</div>
+        <div class="lumina-sub">Trust Document Assistant</div>
+      </div>
+      <button class="lumina-close" onclick="toggleLumina()">×</button>
+    </div>
+    <div class="lumina-body">
+      <div class="lumina-msg">Welcome back! I can help you with your trust documents or answer any questions about trust concepts. How can I assist you today?</div>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <button onclick="luminaMsg('How do I add assets to my trust?')" style="text-align:left; background:var(--navy-pale); border:none; border-radius:var(--radius-md); padding:10px 12px; font-size:13px; color:var(--navy); cursor:pointer; font-family:'DM Sans',sans-serif;">How do I add assets to my trust?</button>
+        <button onclick="luminaMsg('Can I change my trustees?')" style="text-align:left; background:var(--navy-pale); border:none; border-radius:var(--radius-md); padding:10px 12px; font-size:13px; color:var(--navy); cursor:pointer; font-family:'DM Sans',sans-serif;">Can I change my trustees?</button>
+      </div>
+      <div class="lumina-disclaimer" style="margin-top:12px;">I explain concepts and assist with document preparation only. I cannot provide legal, tax, or financial advice.</div>
+    </div>
+  </div>
+  <button class="lumina-btn" onclick="toggleLumina()"><span>✨</span></button>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+  // Personalise the greeting from session
+  (function () {
+    const session = getSession();
+    if (!session) return;
+    const name = session.firstName || session.email?.split('@')[0] || 'there';
+    const el = document.getElementById('dashGreet');
+    if (el) el.textContent = `Welcome back, ${name}. Manage your trust profiles and documents.`;
+  })();
+</script>
+</body>
+</html>

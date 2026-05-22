@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Understanding Your Trust — SovereignTrust</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/main.css">
+<script src="/js/auth.js"></script>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">
+    <div class="nav-logo-mark">S</div>
+    <div class="nav-logo-text">SovereignTrust</div>
+  </a>
+  <div class="nav-links" id="navLinks">
+    <a class="nav-link" href="/education.html">Education</a>
+    <a class="nav-link" href="/dashboard.html">Dashboard</a>
+    <a class="nav-link" href="/login.html">Sign in</a>
+    <a class="nav-cta" href="/register.html">Create Account</a>
+  </div>
+  <button class="nav-hamburger" onclick="toggleMobileMenu()" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="edu-hero">
+  <h1>Understanding Your Trust</h1>
+  <p>Before you begin building your trust deed, take a few minutes to understand the key concepts. This will help you complete the form with confidence.</p>
+</div>
+
+<div class="edu-grid">
+
+  <div class="edu-card">
+    <div class="edu-card-header" onclick="toggleEdu(this)">
+      <div>
+        <div class="edu-term">What is an Express Private Trust?</div>
+        <div class="edu-def">The foundation of your documentation</div>
+      </div>
+      <div class="edu-chevron">⌄</div>
+    </div>
+    <div class="edu-body">
+      <div class="edu-body-inner">
+        <div>
+          <div class="edu-section-label">Definition</div>
+          <p>An express private trust is a legal arrangement in which one party (the Settlor) transfers property to another party (the Trustee) to hold and manage for the benefit of specified persons (the Beneficiaries), as expressly declared in a trust deed.</p>
+        </div>
+        <div>
+          <div class="edu-section-label">Example</div>
+          <p>James transfers his investment portfolio to his sister Sarah, as Trustee, to hold for the benefit of his two children — creating an express private family trust with a formal deed.</p>
+        </div>
+        <div class="edu-note">Important: An express private trust is constituted by clear, intentional declaration. It is not a tax avoidance tool, and proper professional advice should be sought before establishing any trust.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="edu-card">
+    <div class="edu-card-header" onclick="toggleEdu(this)">
+      <div>
+        <div class="edu-term">The Settlor</div>
+        <div class="edu-def">The person who establishes and funds the trust</div>
+      </div>
+      <div class="edu-chevron">⌄</div>
+    </div>
+    <div class="edu-body">
+      <div class="edu-body-inner">
+        <div>
+          <div class="edu-section-label">Definition</div>
+          <p>The Settlor is the individual who creates the trust by settling property into it. The Settlor declares the trust, defines its purpose, and transfers the initial trust property to the Trustee.</p>
+        </div>
+        <div>
+          <div class="edu-section-label">Purpose</div>
+          <p>The Settlor establishes the terms under which the trust operates. Once assets are transferred, the Settlor generally ceases to be the legal owner of those assets.</p>
+        </div>
+        <div class="edu-note">The Settlor must have legal capacity and be the rightful owner of any property transferred into the trust at the time of settlement.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="edu-card">
+    <div class="edu-card-header" onclick="toggleEdu(this)">
+      <div>
+        <div class="edu-term">The Trustee</div>
+        <div class="edu-def">The legal holder and manager of trust assets</div>
+      </div>
+      <div class="edu-chevron">⌄</div>
+    </div>
+    <div class="edu-body">
+      <div class="edu-body-inner">
+        <div>
+          <div class="edu-section-label">Definition</div>
+          <p>The Trustee holds legal title to the trust property and administers it according to the terms of the trust deed, always acting in the best interests of the Beneficiaries.</p>
+        </div>
+        <div>
+          <div class="edu-section-label">Duties</div>
+          <p>Trustees have strict legal duties including the duty of care, duty of loyalty, duty to act impartially, and duty to follow the terms of the trust deed.</p>
+        </div>
+        <div class="edu-note">Trustees carry legal responsibility for the trust. Appointment should be considered carefully. Professional trustees may be used for complex arrangements.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="edu-card">
+    <div class="edu-card-header" onclick="toggleEdu(this)">
+      <div>
+        <div class="edu-term">The Beneficiary</div>
+        <div class="edu-def">Those who benefit from the trust</div>
+      </div>
+      <div class="edu-chevron">⌄</div>
+    </div>
+    <div class="edu-body">
+      <div class="edu-body-inner">
+        <div>
+          <div class="edu-section-label">Definition</div>
+          <p>Beneficiaries are the persons or entities who receive the benefit of the trust property. They may receive income, capital, or both, depending on the trust terms.</p>
+        </div>
+        <div>
+          <div class="edu-section-label">Types</div>
+          <p>Beneficiaries may be fixed (entitled to specified shares), discretionary (at Trustee discretion), or a combination. They may be individuals, charities, or other entities.</p>
+        </div>
+        <div class="edu-note">Beneficiaries must be identifiable. For discretionary trusts, a class of potential beneficiaries must be defined with sufficient certainty.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="edu-card">
+    <div class="edu-card-header" onclick="toggleEdu(this)">
+      <div>
+        <div class="edu-term">The Protector</div>
+        <div class="edu-def">Optional oversight role for the trust</div>
+      </div>
+      <div class="edu-chevron">⌄</div>
+    </div>
+    <div class="edu-body">
+      <div class="edu-body-inner">
+        <div>
+          <div class="edu-section-label">Definition</div>
+          <p>A Protector is an optional appointee who holds defined powers of oversight over the Trustees — such as the power to remove and replace Trustees or consent to certain transactions.</p>
+        </div>
+        <div>
+          <div class="edu-section-label">Purpose</div>
+          <p>The Protector role provides an additional layer of governance, often used in long-term or complex trusts to ensure the Settlor's original intentions are maintained over time.</p>
+        </div>
+        <div class="edu-note">Including a Protector is entirely optional in this document set. Not all trust deeds require one. Seek professional advice if uncertain.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="edu-card">
+    <div class="edu-card-header" onclick="toggleEdu(this)">
+      <div>
+        <div class="edu-term">Signing &amp; Execution</div>
+        <div class="edu-def">How a trust deed becomes legally valid</div>
+      </div>
+      <div class="edu-chevron">⌄</div>
+    </div>
+    <div class="edu-body">
+      <div class="edu-body-inner">
+        <div>
+          <div class="edu-section-label">Process</div>
+          <p>A trust deed is typically executed as a deed — signed by the Settlor and Trustee(s) in the presence of independent witnesses, who also sign the document.</p>
+        </div>
+        <div>
+          <div class="edu-section-label">Important Note</div>
+          <p>The requirements for valid execution vary by jurisdiction. Always obtain independent legal advice before signing any trust deed to ensure proper execution in your jurisdiction.</p>
+        </div>
+        <div class="edu-note">The documents generated by this platform are templates only. They must be reviewed by a qualified legal professional before execution.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="edu-proceed">
+  <p style="font-size:15px; color:var(--text-muted); margin-bottom:20px; font-weight:300;">Ready to begin building your trust documentation?</p>
+  <a class="btn-navy" style="padding:14px 36px; font-size:16px;" href="/builder.html">Begin Trust Builder →</a>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+  function toggleEdu(header) {
+    const isOpen = header.classList.contains('open');
+    document.querySelectorAll('.edu-card-header').forEach(h => {
+      h.classList.remove('open');
+      h.nextElementSibling.classList.remove('open');
+    });
+    if (!isOpen) {
+      header.classList.add('open');
+      header.nextElementSibling.classList.add('open');
+    }
+  }
+</script>
+</body>
+</html>
