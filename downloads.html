@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/main.css">
 <script src="/js/auth.js"></script>
+<script src="/js/trust-api.js"></script>
 <script>requireAuth();</script>
 </head>
 <body>
@@ -29,48 +30,28 @@
 </nav>
 
 <div class="downloads-wrap">
-  <div class="success-banner">
+  <div id="statusBanner" class="success-banner" style="display:none;">
     <div class="success-icon">✓</div>
     <div>
-      <h2>Payment Confirmed</h2>
-      <p>Your documents have been generated and are ready to download. A confirmation email has been sent to james@example.com.</p>
+      <h2 id="statusTitle">Payment Confirmed</h2>
+      <p id="statusMessage">Your document has been generated and is ready to download.</p>
     </div>
   </div>
 
-  <h2 style="font-size:24px; color:var(--navy); margin-bottom:8px;">Your Documents</h2>
-  <p style="font-size:15px; color:var(--text-muted); margin-bottom:28px; font-weight:300;">The Harrison Family Trust · Generated 21 May 2025</p>
+  <div id="errorBanner" class="alert-error" style="display:none;"></div>
 
-  <div class="download-card">
+  <h2 style="font-size:24px; color:var(--navy); margin-bottom:8px;">Your Documents</h2>
+  <p style="font-size:15px; color:var(--text-muted); margin-bottom:28px; font-weight:300;" id="trustSubtitle">Loading…</p>
+
+  <div class="download-card" id="pdfCard" style="display:none;">
     <div class="download-info">
       <div class="download-file-icon pdf-icon">PDF</div>
       <div>
         <div class="download-name">Express Private Trust Deed</div>
-        <div class="download-meta">Harrison_Family_Trust_Deed.pdf · 2.4 MB</div>
+        <div class="download-meta" id="pdfMeta">Trust_Deed.pdf</div>
       </div>
     </div>
-    <button class="btn-download">Download →</button>
-  </div>
-
-  <div class="download-card">
-    <div class="download-info">
-      <div class="download-file-icon docx-icon">DOC</div>
-      <div>
-        <div class="download-name">Trust Deed (Editable)</div>
-        <div class="download-meta">Harrison_Family_Trust_Deed.docx · 0.8 MB</div>
-      </div>
-    </div>
-    <button class="btn-download">Download →</button>
-  </div>
-
-  <div class="download-card">
-    <div class="download-info">
-      <div class="download-file-icon pdf-icon">PDF</div>
-      <div>
-        <div class="download-name">Guidance Notes</div>
-        <div class="download-meta">Trust_Guidance_Notes.pdf · 1.1 MB</div>
-      </div>
-    </div>
-    <button class="btn-download">Download →</button>
+    <button class="btn-download" id="pdfDownloadBtn">Download →</button>
   </div>
 
   <div style="background:var(--cream-dark); border:1px solid var(--grey-light); border-radius:var(--radius-lg); padding:24px 28px; margin-top:32px;">
@@ -103,5 +84,83 @@
 </div>
 
 <script src="/js/app.js"></script>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const trustId = params.get('id');
+  const stripeSessionId = params.get('session_id');
+
+  function showError(message) {
+    const el = document.getElementById('errorBanner');
+    el.textContent = message;
+    el.style.display = 'block';
+  }
+
+  function showStatus(title, message) {
+    document.getElementById('statusTitle').textContent = title;
+    document.getElementById('statusMessage').textContent = message;
+    document.getElementById('statusBanner').style.display = 'flex';
+  }
+
+  function showPdfCard(trust) {
+    const name = trust.name || trust.data?.overview?.name || 'Trust_Deed';
+    document.getElementById('pdfMeta').textContent = `${name.replace(/[^a-z0-9]+/gi, '_')}_Deed.pdf`;
+    document.getElementById('pdfCard').style.display = 'flex';
+    document.getElementById('pdfDownloadBtn').onclick = async () => {
+      const btn = document.getElementById('pdfDownloadBtn');
+      btn.disabled = true;
+      btn.textContent = 'Preparing…';
+      try {
+        await downloadTrustDocument(trustId, `${name.replace(/[^a-z0-9]+/gi, '_')}_Deed.pdf`);
+      } catch (err) {
+        showError(err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Download →';
+      }
+    };
+  }
+
+  (async function init() {
+    if (!trustId) {
+      showError('No trust selected.');
+      document.getElementById('trustSubtitle').textContent = '';
+      return;
+    }
+
+    try {
+      let trust = await getTrustById(trustId);
+      if (!trust) {
+        showError('Trust not found.');
+        document.getElementById('trustSubtitle').textContent = '';
+        return;
+      }
+
+      // Returning from Stripe with a session_id - verify payment and mark the trust Paid.
+      if (stripeSessionId && trust.status !== 'Paid') {
+        const status = await checkCheckoutStatus(stripeSessionId);
+        if (status.paid) {
+          await saveTrust({ id: trustId, name: trust.name, status: 'Paid', data: trust.data });
+          await awardKarma('TrustDocumentGenerated');
+          trust = await getTrustById(trustId);
+        } else {
+          showError('Payment was not completed. Please try checking out again.');
+        }
+      }
+
+      document.getElementById('trustSubtitle').textContent = `${trust.name || 'Untitled Trust'} · ${trust.status === 'Paid' ? 'Paid' : trust.status}`;
+
+      if (trust.status === 'Paid') {
+        showStatus('Payment Confirmed', 'Your document has been generated and is ready to download.');
+        showPdfCard(trust);
+      } else {
+        showError('This trust has not been paid for yet. Please complete checkout to unlock your documents.');
+      }
+
+    } catch (err) {
+      console.error('[downloads]', err);
+      showError(err.message);
+    }
+  })();
+</script>
 </body>
 </html>

@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/main.css">
 <script src="/js/auth.js"></script>
+<script src="/js/trust-api.js"></script>
 <script>requireAuth();</script>
 </head>
 <body>
@@ -32,8 +33,8 @@
 <div class="preview-bar">
   <div class="preview-bar-label">Document Preview — <em>PREVIEW — NOT FINAL EXECUTED DOCUMENT</em></div>
   <div class="preview-bar-actions">
-    <a class="btn-outline" style="color:var(--white); border-color:rgba(255,255,255,0.3); padding:8px 18px; font-size:14px;" href="/builder.html">← Edit</a>
-    <a class="btn-gold" style="padding:8px 20px; font-size:14px; width:auto;" href="/checkout.html">Proceed to Payment →</a>
+    <a class="btn-outline" id="editLink" style="color:var(--white); border-color:rgba(255,255,255,0.3); padding:8px 18px; font-size:14px;" href="/builder.html">← Edit</a>
+    <a class="btn-gold" id="checkoutLink" style="padding:8px 20px; font-size:14px; width:auto;" href="/checkout.html">Proceed to Payment →</a>
   </div>
 </div>
 
@@ -44,20 +45,19 @@
     <h2>EXPRESS PRIVATE TRUST DEED</h2>
     <div class="doc-center">Prepared using SovereignTrust.net · Educational Document Preparation</div>
     <h3>Trust Identification</h3>
-    <div class="doc-field"><div class="doc-field-label">Trust Name</div><div class="doc-field-val">The Harrison Family Trust</div></div>
-    <div class="doc-field"><div class="doc-field-label">Date of Deed</div><div class="doc-field-val">21st May 2025</div></div>
-    <div class="doc-field"><div class="doc-field-label">Governing Law</div><div class="doc-field-val">The Laws of England &amp; Wales</div></div>
-    <div class="doc-field"><div class="doc-field-label">Initial Trust Property</div><div class="doc-field-val">£10 (ten pounds sterling)</div></div>
+    <div class="doc-field"><div class="doc-field-label">Trust Name</div><div class="doc-field-val" id="docTrustName">—</div></div>
+    <div class="doc-field"><div class="doc-field-label">Date of Deed</div><div class="doc-field-val" id="docDate">—</div></div>
+    <div class="doc-field"><div class="doc-field-label">Governing Law</div><div class="doc-field-val" id="docJurisdiction">—</div></div>
+    <div class="doc-field"><div class="doc-field-label">Initial Trust Property</div><div class="doc-field-val" id="docInitialProperty">—</div></div>
     <h3>The Settlor</h3>
-    <div class="doc-field"><div class="doc-field-label">Name</div><div class="doc-field-val">James Edward Harrison</div></div>
-    <div class="doc-field"><div class="doc-field-label">Address</div><div class="doc-field-val">14 Elmwood Close, Oxford, OX2 7BH, England</div></div>
+    <div class="doc-field"><div class="doc-field-label">Name</div><div class="doc-field-val" id="docSettlorName">—</div></div>
+    <div class="doc-field"><div class="doc-field-label">Address</div><div class="doc-field-val" id="docSettlorAddress">—</div></div>
     <h3>The Trustee(s)</h3>
-    <div class="doc-field"><div class="doc-field-label">Trustee 1</div><div class="doc-field-val">Sarah Margaret Harrison, 22 Birchwood Avenue, Oxford, OX3 9PL, England</div></div>
+    <div id="docTrustees"></div>
     <h3>The Beneficiaries</h3>
-    <div class="doc-field"><div class="doc-field-label">Beneficiary 1</div><div class="doc-field-val">Thomas James Harrison (Son) — Fixed Beneficiary</div></div>
-    <div class="doc-field"><div class="doc-field-label">Beneficiary 2</div><div class="doc-field-val">Emily Claire Harrison (Daughter) — Fixed Beneficiary</div></div>
+    <div id="docBeneficiaries"></div>
     <h3>Trust Purpose</h3>
-    <p style="font-size:14px; color:var(--text-mid); line-height:1.8;">To hold, manage and distribute the trust assets for the benefit of the named beneficiaries in accordance with the terms set out herein and any Memorandum of Wishes provided by the Settlor from time to time.</p>
+    <p style="font-size:14px; color:var(--text-mid); line-height:1.8;" id="docPurpose">—</p>
     <h3>Execution</h3>
     <p style="font-size:14px; color:var(--text-muted); font-style:italic;">Signature blocks, witness attestation, and execution clauses will appear in the final generated document.</p>
     <div style="margin-top:40px; padding:16px; background:var(--cream); border-radius:var(--radius-sm); font-size:12px; color:var(--text-muted); line-height:1.7; text-align:center;">This is a preview only and does not constitute a final executed legal document. This document has been generated using SovereignTrust.net for educational and administrative document preparation purposes only. It does not constitute legal advice.</div>
@@ -72,7 +72,7 @@
       <div class="price-line"><span style="color:var(--text-muted);">Editable DOCX</span><span style="color:var(--success);">✓ Included</span></div>
       <div class="price-line"><span style="color:var(--text-muted);">Dashboard Access</span><span style="color:var(--success);">✓ Included</span></div>
       <div class="price-line total"><span>Total</span><span>£111.00</span></div>
-      <a class="btn-gold" style="margin-top:16px;" href="/checkout.html">Pay £111 Securely →</a>
+      <a class="btn-gold" id="payLink" style="margin-top:16px;" href="/checkout.html">Pay £111 Securely →</a>
       <div style="font-size:12px; color:var(--text-muted); text-align:center; margin-top:12px;">🔒 Secured by Stripe</div>
     </div>
     <div class="preview-sidebar-card">
@@ -105,5 +105,76 @@
 </div>
 
 <script src="/js/app.js"></script>
+<script>
+  const trustId = new URLSearchParams(window.location.search).get('id');
+
+  function fmtDate(iso) {
+    if (!iso) return new Date().toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' });
+    return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  function renderParty(container, items, formatter, emptyText) {
+    container.innerHTML = '';
+    const named = (items || []).filter((i) => i.name);
+    if (!named.length) {
+      const div = document.createElement('div');
+      div.className = 'doc-field';
+      div.innerHTML = `<div class="doc-field-label">—</div><div class="doc-field-val" style="color:var(--text-muted); font-style:italic;">${emptyText}</div>`;
+      container.appendChild(div);
+      return;
+    }
+    named.forEach((item, i) => {
+      const div = document.createElement('div');
+      div.className = 'doc-field';
+      const label = document.createElement('div');
+      label.className = 'doc-field-label';
+      label.textContent = `${container.id === 'docTrustees' ? 'Trustee' : 'Beneficiary'} ${i + 1}`;
+      const val = document.createElement('div');
+      val.className = 'doc-field-val';
+      val.textContent = formatter(item);
+      div.append(label, val);
+      container.appendChild(div);
+    });
+  }
+
+  (async function init() {
+    if (!trustId) {
+      document.getElementById('docTrustName').textContent = 'No trust selected — please start from the builder.';
+      return;
+    }
+
+    document.getElementById('editLink').href = `/builder.html?id=${encodeURIComponent(trustId)}`;
+    document.getElementById('checkoutLink').href = `/checkout.html?id=${encodeURIComponent(trustId)}`;
+    document.getElementById('payLink').href = `/checkout.html?id=${encodeURIComponent(trustId)}`;
+
+    try {
+      const trust = await getTrustById(trustId);
+      if (!trust) {
+        document.getElementById('docTrustName').textContent = 'Trust not found.';
+        return;
+      }
+
+      const data = trust.data || {};
+      const overview = data.overview || {};
+      const settlor = data.settlor || {};
+
+      document.getElementById('docTrustName').textContent = overview.name || trust.name || '—';
+      document.getElementById('docDate').textContent = fmtDate(overview.creationDate);
+      document.getElementById('docJurisdiction').textContent = overview.jurisdiction ? `The Laws of ${overview.jurisdiction}` : '—';
+      document.getElementById('docInitialProperty').textContent = overview.initialProperty || '—';
+      document.getElementById('docSettlorName').textContent = settlor.name || '—';
+      document.getElementById('docSettlorAddress').textContent = settlor.address || '—';
+      document.getElementById('docPurpose').textContent = overview.purpose ||
+        'To hold, manage and distribute the trust assets for the benefit of the named beneficiaries in accordance with the terms set out herein and any Memorandum of Wishes provided by the Settlor from time to time.';
+
+      renderParty(document.getElementById('docTrustees'), data.trustees, (t) => `${t.name}${t.address ? ', ' + t.address : ''}`, 'No trustees appointed yet.');
+      renderParty(document.getElementById('docBeneficiaries'), data.beneficiaries, (b) => `${b.name}${b.relationship ? ' (' + b.relationship + ')' : ''}${b.type ? ' — ' + b.type : ''}`, 'No beneficiaries added yet.');
+
+    } catch (err) {
+      console.error('[preview]', err);
+      document.getElementById('docTrustName').textContent = 'Could not load this trust.';
+    }
+  })();
+</script>
 </body>
 </html>
