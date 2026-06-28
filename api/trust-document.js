@@ -1,0 +1,211 @@
+const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
+const { getBearerToken, createClient } = require('./_oasis');
+
+const PAGE_WIDTH = 595.28; // A4
+const PAGE_HEIGHT = 841.89;
+const MARGIN = 56;
+
+function wrapText(text, font, fontSize, maxWidth) {
+  const words = String(text || '').split(/\s+/).filter(Boolean);
+  const lines = [];
+  let current = '';
+
+  for (const word of words) {
+    const trial = current ? `${current} ${word}` : word;
+    if (font.widthOfTextAtSize(trial, fontSize) > maxWidth && current) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = trial;
+    }
+  }
+  if (current) lines.push(current);
+  return lines;
+}
+
+async function buildTrustDeedPdf(data, trustName) {
+  const doc = await PDFDocument.create();
+  const serif = await doc.embedFont(StandardFonts.TimesRoman);
+  const serifBold = await doc.embedFont(StandardFonts.TimesRomanBold);
+  const serifItalic = await doc.embedFont(StandardFonts.TimesRomanItalic);
+
+  const navy = rgb(0.06, 0.13, 0.27);
+  const grey = rgb(0.35, 0.38, 0.45);
+
+  let page = doc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+  let y = PAGE_HEIGHT - MARGIN;
+  const maxWidth = PAGE_WIDTH - MARGIN * 2;
+
+  function newPageIfNeeded(needed) {
+    if (y - needed < MARGIN) {
+      page = doc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+      y = PAGE_HEIGHT - MARGIN;
+    }
+  }
+
+  function heading(text, size = 13) {
+    newPageIfNeeded(size + 20);
+    y -= size + 6;
+    page.drawText(text, { x: MARGIN, y, size, font: serifBold, color: navy });
+    y -= 8;
+  }
+
+  function paragraph(text, { size = 11, font = serif, color = rgb(0.1, 0.1, 0.12), gap = 14 } = {}) {
+    const lines = wrapText(text, font, size, maxWidth);
+    for (const line of lines) {
+      newPageIfNeeded(gap);
+      y -= gap;
+      page.drawText(line, { x: MARGIN, y, size, font, color });
+    }
+    y -= 6;
+  }
+
+  function field(label, value) {
+    paragraph(`${label}: ${value || '—'}`, { size: 11, gap: 16 });
+  }
+
+  // Title block
+  newPageIfNeeded(60);
+  y -= 30;
+  page.drawText('EXPRESS PRIVATE TRUST DEED', { x: MARGIN, y, size: 20, font: serifBold, color: navy });
+  y -= 18;
+  page.drawText(trustName || 'Untitled Trust', { x: MARGIN, y, size: 14, font: serifItalic, color: grey });
+  y -= 10;
+  paragraph('Prepared using SovereignTrust.net — educational and administrative document preparation only. This document is a template and does not constitute legal advice.', {
+    size: 9,
+    font: serifItalic,
+    color: grey,
+    gap: 12
+  });
+
+  const overview = data.overview || {};
+  const settlor = data.settlor || {};
+  const protector = data.protector || {};
+  const signing = data.signing || {};
+
+  heading('1. Trust Identification');
+  field('Trust Name', overview.name);
+  field('Date of Deed', overview.creationDate);
+  field('Governing Jurisdiction', overview.jurisdiction);
+  field('Initial Trust Property', overview.initialProperty);
+
+  heading('2. Trust Purpose');
+  paragraph(
+    overview.purpose ||
+      'To hold, manage and distribute the trust assets for the benefit of the named beneficiaries in accordance with the terms set out herein and any Memorandum of Wishes provided by the Settlor from time to time.'
+  );
+
+  heading('3. The Settlor');
+  field('Name', settlor.name);
+  field('Address', settlor.address);
+  field('Email', settlor.email);
+  field('Phone', settlor.phone);
+
+  heading('4. The Trustee(s)');
+  const trustees = (data.trustees || []).filter((t) => t.name);
+  if (!trustees.length) {
+    paragraph('No trustees have been appointed.', { font: serifItalic, color: grey });
+  } else {
+    trustees.forEach((t, i) => {
+      paragraph(`Trustee ${i + 1}: ${t.name}`, { font: serifBold, gap: 16 });
+      if (t.address) paragraph(`Address: ${t.address}`, { size: 10 });
+      if (t.email) paragraph(`Email: ${t.email}`, { size: 10 });
+      if (t.phone) paragraph(`Phone: ${t.phone}`, { size: 10 });
+    });
+  }
+
+  heading('5. The Beneficiaries');
+  const beneficiaries = (data.beneficiaries || []).filter((b) => b.name);
+  if (!beneficiaries.length) {
+    paragraph('No beneficiaries have been named.', { font: serifItalic, color: grey });
+  } else {
+    beneficiaries.forEach((b, i) => {
+      paragraph(`Beneficiary ${i + 1}: ${b.name}${b.relationship ? ` (${b.relationship})` : ''}`, { font: serifBold, gap: 16 });
+      if (b.address) paragraph(`Address: ${b.address}`, { size: 10 });
+      if (b.type) paragraph(`Type: ${b.type}`, { size: 10 });
+    });
+  }
+
+  heading('6. The Protector');
+  if (protector.name) {
+    field('Name', protector.name);
+    field('Address', protector.address);
+    field('Email', protector.email);
+  } else {
+    paragraph('No Protector has been appointed for this trust.', { font: serifItalic, color: grey });
+  }
+
+  heading('7. Execution');
+  field('Place of Signing', signing.place);
+  paragraph('IN WITNESS WHEREOF the Settlor and Trustee(s) have executed this Deed on the date first written above, in the presence of the witnesses named below.', { gap: 16 });
+
+  paragraph(`Witness 1: ${signing.witness1?.name || '—'}`, { font: serifBold, gap: 18 });
+  if (signing.witness1?.address) paragraph(`Address: ${signing.witness1.address}`, { size: 10 });
+  paragraph(`Witness 2: ${signing.witness2?.name || '—'}`, { font: serifBold, gap: 18 });
+  if (signing.witness2?.address) paragraph(`Address: ${signing.witness2.address}`, { size: 10 });
+
+  newPageIfNeeded(60);
+  y -= 30;
+  paragraph(
+    'This document has been generated using SovereignTrust.net for educational and administrative document preparation purposes only. Before signing or acting upon this document, you should have it reviewed by a qualified legal professional in your jurisdiction, ensure proper execution in accordance with local legal requirements, and obtain independent legal, tax, and financial advice.',
+    { size: 9, font: serifItalic, color: grey, gap: 12 }
+  );
+
+  return doc.save();
+}
+
+async function handler(req, res) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const token = getBearerToken(req);
+  if (!token) {
+    return res.status(401).json({ error: 'Missing or invalid Authorization header.' });
+  }
+
+  const { id, avatarId } = req.query || {};
+  if (!id || !avatarId) {
+    return res.status(400).json({ error: 'id and avatarId are required.' });
+  }
+
+  try {
+    const oasis = createClient(token);
+    const { isError, message, result } = await oasis.data.loadHolon({ Id: id });
+
+    if (isError || !result) {
+      return res.status(404).json({ error: message || 'Trust not found.' });
+    }
+
+    const holon = result;
+    const parentId = holon.parentHolonId || holon.ParentHolonId;
+    if (String(parentId) !== String(avatarId)) {
+      return res.status(403).json({ error: 'You do not have access to this trust.' });
+    }
+
+    const meta = holon.metaData || holon.MetaData || {};
+    const status = meta.status || meta.Status || 'Draft';
+    if (status !== 'Paid') {
+      return res.status(402).json({ error: 'Payment is required before this document can be downloaded.' });
+    }
+
+    let trustData = {};
+    try { trustData = JSON.parse(meta.trustData || meta.TrustData || '{}'); } catch {}
+
+    const trustName = holon.name || holon.Name || trustData.overview?.name || 'Trust Deed';
+    const pdfBytes = await buildTrustDeedPdf(trustData, trustName);
+
+    const safeName = trustName.replace(/[^a-z0-9]+/gi, '_').replace(/^_+|_+$/g, '') || 'Trust_Deed';
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${safeName}_Deed.pdf"`);
+    return res.status(200).send(Buffer.from(pdfBytes));
+
+  } catch (err) {
+    console.error('[trust-document]', err);
+    return res.status(500).json({ error: 'Failed to generate document. Please try again.' });
+  }
+}
+
+module.exports = handler;
+module.exports.buildTrustDeedPdf = buildTrustDeedPdf;

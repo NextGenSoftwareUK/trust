@@ -1,0 +1,14 @@
+{
+  "name": "sovereigntrust",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SovereignTrust - trust document builder on the WEB4 OASIS API.",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "pdf-lib": "^1.17.1",
+    "stripe": "^22.3.0",
+    "web4-oasis-api": "file:../OASIS-API-Javascipt-Package"
+  }
+}

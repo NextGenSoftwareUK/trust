@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/main.css">
 <script src="/js/auth.js"></script>
+<script src="/js/trust-api.js"></script>
 <script>requireAuth();</script>
 </head>
 <body>
@@ -78,26 +79,26 @@
       <p class="builder-section-sub">Begin by providing the fundamental details that will identify and define your express private trust.</p>
       <div class="field-group">
         <label class="field-label">Trust Name <span style="color:var(--gold)">*</span></label>
-        <input type="text" class="field-input" placeholder="e.g. The Harrison Family Trust">
+        <input type="text" class="field-input" id="f-trustName" placeholder="e.g. The Harrison Family Trust">
         <div class="field-help">The formal name of your trust as it will appear on all documentation.</div>
         <div class="field-example">Example: "The [Your Surname] Family Trust" or "The [Purpose] Trust 2025"</div>
         <div class="field-why"><strong>Why this matters:</strong> The trust name is used to formally identify the trust in all legal documents, correspondence, and records.</div>
       </div>
       <div class="field-group">
         <label class="field-label">Trust Creation Date <span style="color:var(--gold)">*</span></label>
-        <input type="date" class="field-input">
+        <input type="date" class="field-input" id="f-creationDate">
         <div class="field-help">The date on which this trust deed is to be dated.</div>
         <div class="field-why"><strong>Why this matters:</strong> The creation date establishes when the trust legally comes into existence.</div>
       </div>
       <div class="field-group">
         <label class="field-label">Trust Purpose <span style="color:var(--gold)">*</span></label>
-        <textarea class="field-input" placeholder="e.g. To hold, manage and distribute assets for the benefit of the beneficiaries named herein..."></textarea>
+        <textarea class="field-input" id="f-purpose" placeholder="e.g. To hold, manage and distribute assets for the benefit of the beneficiaries named herein..."></textarea>
         <div class="field-help">A plain-English statement of the primary purpose of this trust.</div>
         <div class="field-why"><strong>Why this matters:</strong> The purpose clause defines the intention of the trust and guides Trustees in their administration.</div>
       </div>
       <div class="field-group">
         <label class="field-label">Governing Jurisdiction <span style="color:var(--gold)">*</span></label>
-        <select class="field-input">
+        <select class="field-input" id="f-jurisdiction">
           <option value="">Select jurisdiction...</option>
           <option>England &amp; Wales</option>
           <option>Scotland</option>
@@ -113,7 +114,7 @@
       </div>
       <div class="field-group">
         <label class="field-label">Initial Trust Property <span style="color:var(--gold)">*</span></label>
-        <input type="text" class="field-input" placeholder="e.g. £10 settled sum">
+        <input type="text" class="field-input" id="f-initialProperty" placeholder="e.g. £10 settled sum">
         <div class="field-help">The property or nominal sum being settled into the trust at its creation.</div>
         <div class="field-example">Example: "£10 settled sum" (a nominal amount is typical for initial settlement)</div>
         <div class="field-why"><strong>Why this matters:</strong> A trust requires that property be transferred to it. An initial nominal sum is commonly used to constitute the trust before further assets are added.</div>
@@ -130,21 +131,21 @@
       <p class="builder-section-sub">The Settlor is the person who creates and funds the trust. Please provide their full legal details.</p>
       <div class="field-group">
         <label class="field-label">Full Legal Name <span style="color:var(--gold)">*</span></label>
-        <input type="text" class="field-input" placeholder="e.g. James Edward Harrison">
+        <input type="text" class="field-input" id="f-settlorName" placeholder="e.g. James Edward Harrison">
         <div class="field-help">Enter the Settlor's full legal name exactly as it appears on official identification.</div>
       </div>
       <div class="field-group">
         <label class="field-label">Full Address <span style="color:var(--gold)">*</span></label>
-        <textarea class="field-input" placeholder="Full address including postcode/zip code" style="min-height:80px;"></textarea>
+        <textarea class="field-input" id="f-settlorAddress" placeholder="Full address including postcode/zip code" style="min-height:80px;"></textarea>
       </div>
       <div class="grid-2">
         <div class="field-group">
           <label class="field-label">Email Address <span style="color:var(--gold)">*</span></label>
-          <input type="email" class="field-input" placeholder="settlor@example.com">
+          <input type="email" class="field-input" id="f-settlorEmail" placeholder="settlor@example.com">
         </div>
         <div class="field-group">
           <label class="field-label">Phone Number</label>
-          <input type="tel" class="field-input" placeholder="+44 7700 000000">
+          <input type="tel" class="field-input" id="f-settlorPhone" placeholder="+44 7700 000000">
         </div>
       </div>
       <div class="builder-nav">
@@ -165,20 +166,20 @@
           </div>
           <div class="field-group">
             <label class="field-label">Full Legal Name <span style="color:var(--gold)">*</span></label>
-            <input type="text" class="field-input" placeholder="e.g. Sarah Margaret Harrison">
+            <input type="text" class="field-input" data-field="name" placeholder="e.g. Sarah Margaret Harrison">
           </div>
           <div class="field-group">
             <label class="field-label">Full Address <span style="color:var(--gold)">*</span></label>
-            <textarea class="field-input" placeholder="Full address including postcode" style="min-height:72px;"></textarea>
+            <textarea class="field-input" data-field="address" placeholder="Full address including postcode" style="min-height:72px;"></textarea>
           </div>
           <div class="grid-2">
             <div class="field-group">
               <label class="field-label">Email</label>
-              <input type="email" class="field-input" placeholder="trustee@example.com">
+              <input type="email" class="field-input" data-field="email" placeholder="trustee@example.com">
             </div>
             <div class="field-group">
               <label class="field-label">Phone</label>
-              <input type="tel" class="field-input" placeholder="+44 7700 000000">
+              <input type="tel" class="field-input" data-field="phone" placeholder="+44 7700 000000">
             </div>
           </div>
         </div>
@@ -202,20 +203,20 @@
           </div>
           <div class="field-group">
             <label class="field-label">Full Legal Name <span style="color:var(--gold)">*</span></label>
-            <input type="text" class="field-input" placeholder="e.g. Thomas James Harrison">
+            <input type="text" class="field-input" data-field="name" placeholder="e.g. Thomas James Harrison">
           </div>
           <div class="field-group">
             <label class="field-label">Full Address <span style="color:var(--gold)">*</span></label>
-            <textarea class="field-input" placeholder="Full address including postcode" style="min-height:72px;"></textarea>
+            <textarea class="field-input" data-field="address" placeholder="Full address including postcode" style="min-height:72px;"></textarea>
           </div>
           <div class="grid-2">
             <div class="field-group">
               <label class="field-label">Relationship to Settlor</label>
-              <input type="text" class="field-input" placeholder="e.g. Son, Daughter, Spouse">
+              <input type="text" class="field-input" data-field="relationship" placeholder="e.g. Son, Daughter, Spouse">
             </div>
             <div class="field-group">
               <label class="field-label">Beneficiary Type</label>
-              <select class="field-input">
+              <select class="field-input" data-field="type">
                 <option>Fixed Beneficiary</option>
                 <option>Discretionary Beneficiary</option>
                 <option>Remainder Beneficiary</option>
@@ -239,16 +240,16 @@
       <div class="party-card">
         <div class="field-group">
           <label class="field-label">Full Legal Name</label>
-          <input type="text" class="field-input" placeholder="e.g. Robert Andrew Williams">
+          <input type="text" class="field-input" id="f-protectorName" placeholder="e.g. Robert Andrew Williams">
           <div class="field-help">Leave blank if not appointing a Protector.</div>
         </div>
         <div class="field-group">
           <label class="field-label">Full Address</label>
-          <textarea class="field-input" placeholder="Full address including postcode" style="min-height:72px;"></textarea>
+          <textarea class="field-input" id="f-protectorAddress" placeholder="Full address including postcode" style="min-height:72px;"></textarea>
         </div>
         <div class="field-group">
           <label class="field-label">Email Address</label>
-          <input type="email" class="field-input" placeholder="protector@example.com">
+          <input type="email" class="field-input" id="f-protectorEmail" placeholder="protector@example.com">
         </div>
       </div>
       <div class="builder-nav">
@@ -264,7 +265,7 @@
       <p class="builder-section-sub">These details will appear on the execution page of your trust deed.</p>
       <div class="field-group">
         <label class="field-label">Place of Signing <span style="color:var(--gold)">*</span></label>
-        <input type="text" class="field-input" placeholder="e.g. London, England">
+        <input type="text" class="field-input" id="f-signingPlace" placeholder="e.g. London, England">
         <div class="field-help">The town or city where the trust deed will be signed and executed.</div>
       </div>
       <div class="divider"></div>
@@ -272,22 +273,22 @@
         <div class="party-card-title" style="margin-bottom:16px;">Witness 1</div>
         <div class="field-group">
           <label class="field-label">Full Name <span style="color:var(--gold)">*</span></label>
-          <input type="text" class="field-input" placeholder="Witness full legal name">
+          <input type="text" class="field-input" id="f-witness1Name" placeholder="Witness full legal name">
         </div>
         <div class="field-group">
           <label class="field-label">Full Address <span style="color:var(--gold)">*</span></label>
-          <textarea class="field-input" placeholder="Witness address" style="min-height:72px;"></textarea>
+          <textarea class="field-input" id="f-witness1Address" placeholder="Witness address" style="min-height:72px;"></textarea>
         </div>
       </div>
       <div class="party-card">
         <div class="party-card-title" style="margin-bottom:16px;">Witness 2</div>
         <div class="field-group">
           <label class="field-label">Full Name <span style="color:var(--gold)">*</span></label>
-          <input type="text" class="field-input" placeholder="Witness full legal name">
+          <input type="text" class="field-input" id="f-witness2Name" placeholder="Witness full legal name">
         </div>
         <div class="field-group">
           <label class="field-label">Full Address <span style="color:var(--gold)">*</span></label>
-          <textarea class="field-input" placeholder="Witness address" style="min-height:72px;"></textarea>
+          <textarea class="field-input" id="f-witness2Address" placeholder="Witness address" style="min-height:72px;"></textarea>
         </div>
       </div>
       <div class="builder-nav">
@@ -310,23 +311,23 @@
           <h3 style="font-size:16px; color:var(--navy);">Trust Overview</h3>
           <button class="btn-outline" onclick="goStep(0)" style="font-size:12px; padding:6px 12px;">Edit</button>
         </div>
-        <div class="doc-field"><div class="doc-field-label">Trust Name</div><div class="doc-field-val">The Harrison Family Trust</div></div>
-        <div class="doc-field"><div class="doc-field-label">Jurisdiction</div><div class="doc-field-val">England &amp; Wales</div></div>
-        <div class="doc-field"><div class="doc-field-label">Initial Property</div><div class="doc-field-val">£10 settled sum</div></div>
+        <div class="doc-field"><div class="doc-field-label">Trust Name</div><div class="doc-field-val" id="rv-trustName">—</div></div>
+        <div class="doc-field"><div class="doc-field-label">Jurisdiction</div><div class="doc-field-val" id="rv-jurisdiction">—</div></div>
+        <div class="doc-field"><div class="doc-field-label">Initial Property</div><div class="doc-field-val" id="rv-initialProperty">—</div></div>
       </div>
       <div style="background:var(--white); border:1px solid var(--grey-light); border-radius:var(--radius-lg); padding:24px 28px; box-shadow:var(--shadow-sm); margin-bottom:20px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
           <h3 style="font-size:16px; color:var(--navy);">Parties</h3>
           <button class="btn-outline" onclick="goStep(1)" style="font-size:12px; padding:6px 12px;">Edit</button>
         </div>
-        <div class="doc-field"><div class="doc-field-label">Settlor</div><div class="doc-field-val">James Edward Harrison</div></div>
-        <div class="doc-field"><div class="doc-field-label">Trustee(s)</div><div class="doc-field-val">Sarah Margaret Harrison</div></div>
-        <div class="doc-field"><div class="doc-field-label">Beneficiary</div><div class="doc-field-val">Thomas James Harrison, Emily Claire Harrison</div></div>
-        <div class="doc-field"><div class="doc-field-label">Protector</div><div class="doc-field-val" style="color:var(--text-muted); font-style:italic;">Not appointed</div></div>
+        <div class="doc-field"><div class="doc-field-label">Settlor</div><div class="doc-field-val" id="rv-settlor">—</div></div>
+        <div class="doc-field"><div class="doc-field-label">Trustee(s)</div><div class="doc-field-val" id="rv-trustees">—</div></div>
+        <div class="doc-field"><div class="doc-field-label">Beneficiary</div><div class="doc-field-val" id="rv-beneficiaries">—</div></div>
+        <div class="doc-field"><div class="doc-field-label">Protector</div><div class="doc-field-val" id="rv-protector" style="color:var(--text-muted); font-style:italic;">Not appointed</div></div>
       </div>
       <div class="builder-nav">
         <button class="btn-outline" onclick="prevStep()">← Back</button>
-        <a class="btn-gold" style="padding:12px 28px; width:auto;" href="/preview.html">Preview Trust Deed →</a>
+        <button class="btn-gold" style="padding:12px 28px; width:auto;" onclick="completeTrust()">Preview Trust Deed →</button>
       </div>
     </div>
 
@@ -363,6 +364,8 @@
   const totalSteps = 7;
   let trusteeCount = 1;
   let beneficiaryCount = 1;
+  let trustId = new URLSearchParams(window.location.search).get('id') || null;
+  let saveTimer = null;
 
   function goStep(n) {
     document.querySelectorAll('.builder-step-content').forEach(s => s.classList.remove('active'));
@@ -372,6 +375,7 @@
     currentStep = n;
     document.getElementById('builderProgress').style.width = (((n + 1) / totalSteps) * 100) + '%';
     window.scrollTo(0, 0);
+    if (n === totalSteps - 1) renderReview();
   }
 
   function nextStep() { if (currentStep < totalSteps - 1) goStep(currentStep + 1); }
@@ -382,7 +386,7 @@
     const c = document.getElementById('trustees-container');
     const d = document.createElement('div');
     d.className = 'party-card';
-    d.innerHTML = `<div class="party-card-header"><div class="party-card-title">Trustee ${trusteeCount}</div><button class="btn-remove" onclick="this.closest('.party-card').remove()">Remove ×</button></div><div class="field-group"><label class="field-label">Full Legal Name</label><input type="text" class="field-input" placeholder="Trustee full name"></div><div class="field-group"><label class="field-label">Full Address</label><textarea class="field-input" placeholder="Full address" style="min-height:72px;"></textarea></div><div class="grid-2"><div class="field-group"><label class="field-label">Email</label><input type="email" class="field-input" placeholder="Email"></div><div class="field-group"><label class="field-label">Phone</label><input type="tel" class="field-input" placeholder="Phone"></div></div>`;
+    d.innerHTML = `<div class="party-card-header"><div class="party-card-title">Trustee ${trusteeCount}</div><button class="btn-remove" onclick="this.closest('.party-card').remove()">Remove ×</button></div><div class="field-group"><label class="field-label">Full Legal Name</label><input type="text" class="field-input" data-field="name" placeholder="Trustee full name"></div><div class="field-group"><label class="field-label">Full Address</label><textarea class="field-input" data-field="address" placeholder="Full address" style="min-height:72px;"></textarea></div><div class="grid-2"><div class="field-group"><label class="field-label">Email</label><input type="email" class="field-input" data-field="email" placeholder="Email"></div><div class="field-group"><label class="field-label">Phone</label><input type="tel" class="field-input" data-field="phone" placeholder="Phone"></div></div>`;
     c.appendChild(d);
   }
 
@@ -391,9 +395,158 @@
     const c = document.getElementById('beneficiaries-container');
     const d = document.createElement('div');
     d.className = 'party-card';
-    d.innerHTML = `<div class="party-card-header"><div class="party-card-title">Beneficiary ${beneficiaryCount}</div><button class="btn-remove" onclick="this.closest('.party-card').remove()">Remove ×</button></div><div class="field-group"><label class="field-label">Full Legal Name</label><input type="text" class="field-input" placeholder="Beneficiary full name"></div><div class="field-group"><label class="field-label">Full Address</label><textarea class="field-input" placeholder="Full address" style="min-height:72px;"></textarea></div><div class="grid-2"><div class="field-group"><label class="field-label">Relationship</label><input type="text" class="field-input" placeholder="e.g. Son, Daughter"></div><div class="field-group"><label class="field-label">Type</label><select class="field-input"><option>Fixed Beneficiary</option><option>Discretionary</option><option>Remainder</option></select></div></div>`;
+    d.innerHTML = `<div class="party-card-header"><div class="party-card-title">Beneficiary ${beneficiaryCount}</div><button class="btn-remove" onclick="this.closest('.party-card').remove()">Remove ×</button></div><div class="field-group"><label class="field-label">Full Legal Name</label><input type="text" class="field-input" data-field="name" placeholder="Beneficiary full name"></div><div class="field-group"><label class="field-label">Full Address</label><textarea class="field-input" data-field="address" placeholder="Full address" style="min-height:72px;"></textarea></div><div class="grid-2"><div class="field-group"><label class="field-label">Relationship</label><input type="text" class="field-input" data-field="relationship" placeholder="e.g. Son, Daughter"></div><div class="field-group"><label class="field-label">Type</label><select class="field-input" data-field="type"><option>Fixed Beneficiary</option><option>Discretionary Beneficiary</option><option>Remainder Beneficiary</option></select></div></div>`;
     c.appendChild(d);
   }
+
+  function collectParty(card) {
+    const party = {};
+    card.querySelectorAll('[data-field]').forEach(el => { party[el.dataset.field] = el.value; });
+    return party;
+  }
+
+  function collectTrustData() {
+    return {
+      overview: {
+        name: document.getElementById('f-trustName').value,
+        creationDate: document.getElementById('f-creationDate').value,
+        purpose: document.getElementById('f-purpose').value,
+        jurisdiction: document.getElementById('f-jurisdiction').value,
+        initialProperty: document.getElementById('f-initialProperty').value
+      },
+      settlor: {
+        name: document.getElementById('f-settlorName').value,
+        address: document.getElementById('f-settlorAddress').value,
+        email: document.getElementById('f-settlorEmail').value,
+        phone: document.getElementById('f-settlorPhone').value
+      },
+      trustees: [...document.querySelectorAll('#trustees-container .party-card')].map(collectParty),
+      beneficiaries: [...document.querySelectorAll('#beneficiaries-container .party-card')].map(collectParty),
+      protector: {
+        name: document.getElementById('f-protectorName').value,
+        address: document.getElementById('f-protectorAddress').value,
+        email: document.getElementById('f-protectorEmail').value
+      },
+      signing: {
+        place: document.getElementById('f-signingPlace').value,
+        witness1: { name: document.getElementById('f-witness1Name').value, address: document.getElementById('f-witness1Address').value },
+        witness2: { name: document.getElementById('f-witness2Name').value, address: document.getElementById('f-witness2Address').value }
+      }
+    };
+  }
+
+  function populateTrustData(data) {
+    if (!data) return;
+    const o = data.overview || {};
+    if (document.getElementById('f-trustName')) document.getElementById('f-trustName').value = o.name || '';
+    if (document.getElementById('f-creationDate')) document.getElementById('f-creationDate').value = o.creationDate || '';
+    if (document.getElementById('f-purpose')) document.getElementById('f-purpose').value = o.purpose || '';
+    if (document.getElementById('f-jurisdiction')) document.getElementById('f-jurisdiction').value = o.jurisdiction || '';
+    if (document.getElementById('f-initialProperty')) document.getElementById('f-initialProperty').value = o.initialProperty || '';
+
+    const s = data.settlor || {};
+    if (document.getElementById('f-settlorName')) document.getElementById('f-settlorName').value = s.name || '';
+    if (document.getElementById('f-settlorAddress')) document.getElementById('f-settlorAddress').value = s.address || '';
+    if (document.getElementById('f-settlorEmail')) document.getElementById('f-settlorEmail').value = s.email || '';
+    if (document.getElementById('f-settlorPhone')) document.getElementById('f-settlorPhone').value = s.phone || '';
+
+    const fillParties = (containerId, items, addFn) => {
+      const container = document.getElementById(containerId);
+      const cards = container.querySelectorAll('.party-card');
+      while (container.querySelectorAll('.party-card').length < (items.length || 1)) addFn();
+      const updated = container.querySelectorAll('.party-card');
+      (items || []).forEach((item, i) => {
+        const card = updated[i];
+        if (!card) return;
+        card.querySelectorAll('[data-field]').forEach(el => { el.value = item[el.dataset.field] || ''; });
+      });
+    };
+    fillParties('trustees-container', data.trustees || [], addTrustee);
+    fillParties('beneficiaries-container', data.beneficiaries || [], addBeneficiary);
+
+    const p = data.protector || {};
+    if (document.getElementById('f-protectorName')) document.getElementById('f-protectorName').value = p.name || '';
+    if (document.getElementById('f-protectorAddress')) document.getElementById('f-protectorAddress').value = p.address || '';
+    if (document.getElementById('f-protectorEmail')) document.getElementById('f-protectorEmail').value = p.email || '';
+
+    const sg = data.signing || {};
+    if (document.getElementById('f-signingPlace')) document.getElementById('f-signingPlace').value = sg.place || '';
+    if (sg.witness1) {
+      document.getElementById('f-witness1Name').value = sg.witness1.name || '';
+      document.getElementById('f-witness1Address').value = sg.witness1.address || '';
+    }
+    if (sg.witness2) {
+      document.getElementById('f-witness2Name').value = sg.witness2.name || '';
+      document.getElementById('f-witness2Address').value = sg.witness2.address || '';
+    }
+  }
+
+  function renderReview() {
+    const data = collectTrustData();
+    document.getElementById('rv-trustName').textContent = data.overview.name || '—';
+    document.getElementById('rv-jurisdiction').textContent = data.overview.jurisdiction || '—';
+    document.getElementById('rv-initialProperty').textContent = data.overview.initialProperty || '—';
+    document.getElementById('rv-settlor').textContent = data.settlor.name || '—';
+    document.getElementById('rv-trustees').textContent = data.trustees.map(t => t.name).filter(Boolean).join(', ') || '—';
+    document.getElementById('rv-beneficiaries').textContent = data.beneficiaries.map(b => b.name).filter(Boolean).join(', ') || '—';
+    const protectorEl = document.getElementById('rv-protector');
+    if (data.protector.name) {
+      protectorEl.textContent = data.protector.name;
+      protectorEl.style.fontStyle = 'normal';
+      protectorEl.style.color = '';
+    } else {
+      protectorEl.textContent = 'Not appointed';
+      protectorEl.style.fontStyle = 'italic';
+    }
+  }
+
+  async function autosave() {
+    const data = collectTrustData();
+    const name = data.overview.name || 'Untitled Trust';
+    try {
+      const result = await saveTrust({ id: trustId, name, status: 'Draft', data });
+      if (result.trust && (result.trust.id || result.trust.Id)) {
+        trustId = result.trust.id || result.trust.Id;
+        const url = new URL(window.location);
+        url.searchParams.set('id', trustId);
+        window.history.replaceState({}, '', url);
+      }
+    } catch (err) {
+      console.error('[autosave]', err);
+    }
+  }
+
+  function scheduleAutosave() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(autosave, 1200);
+  }
+
+  async function completeTrust() {
+    const data = collectTrustData();
+    const name = data.overview.name || 'Untitled Trust';
+    try {
+      const result = await saveTrust({ id: trustId, name, status: 'Generated', data });
+      trustId = result.trust?.id || result.trust?.Id || trustId;
+      await awardKarma('TrustCompleted');
+      window.location.href = '/preview.html?id=' + encodeURIComponent(trustId);
+    } catch (err) {
+      alert('Could not save your trust: ' + err.message);
+    }
+  }
+
+  document.querySelectorAll('.builder-main').forEach(el => el.addEventListener('input', scheduleAutosave));
+
+  (async function init() {
+    if (trustId) {
+      try {
+        const trusts = await listTrusts();
+        const existing = trusts.find(t => t.id === trustId);
+        if (existing) populateTrustData(existing.data);
+      } catch (err) {
+        console.error('[builder init]', err);
+      }
+    }
+  })();
 </script>
 </body>
 </html>

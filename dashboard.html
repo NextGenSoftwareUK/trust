@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/main.css">
 <script src="/js/auth.js"></script>
+<script src="/js/trust-api.js"></script>
 <script>requireAuth();</script>
 </head>
 <body>
@@ -39,40 +40,8 @@
 
   <div style="margin-bottom:12px; font-size:12px; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); font-weight:500;">Your Trust Profiles</div>
 
-  <!-- Trust 1 — Generated -->
-  <div class="trust-card">
-    <div>
-      <div class="trust-name">The Harrison Family Trust</div>
-      <div class="trust-meta">Created 21 May 2025 · England &amp; Wales · £10 settled sum</div>
-      <div style="margin-top:12px;"><span class="status-badge status-generated">● Generated</span></div>
-      <div class="trust-actions">
-        <a class="btn-sm btn-navy" href="/downloads.html">Downloads</a>
-        <a class="btn-sm btn-outline" href="/preview.html">Preview</a>
-        <a class="btn-sm btn-outline" href="/builder.html">Edit</a>
-      </div>
-    </div>
-    <div style="text-align:right;">
-      <div style="font-size:13px; color:var(--text-muted); font-weight:300; margin-bottom:8px;">Payment</div>
-      <div style="font-size:18px; color:var(--navy); font-weight:500;">£111</div>
-      <div style="font-size:12px; color:var(--success);">Confirmed</div>
-    </div>
-  </div>
-
-  <!-- Trust 2 — Draft -->
-  <div class="trust-card" style="opacity:0.7;">
-    <div>
-      <div class="trust-name">Family Discretionary Trust</div>
-      <div class="trust-meta">Last edited 14 May 2025 · Draft — 60% complete</div>
-      <div style="margin-top:12px;"><span class="status-badge status-draft">● Draft</span></div>
-      <div class="trust-actions">
-        <a class="btn-sm btn-navy" href="/builder.html">Continue →</a>
-      </div>
-    </div>
-    <div style="text-align:right;">
-      <div style="font-size:13px; color:var(--text-muted); font-weight:300; margin-bottom:8px;">Completion</div>
-      <div style="font-size:18px; color:var(--gold); font-weight:500;">60%</div>
-    </div>
-  </div>
+  <div id="trustsList"></div>
+  <div id="trustsEmpty" style="display:none; padding:32px; text-align:center; color:var(--text-muted); font-weight:300;">You haven't created any trust profiles yet.</div>
 
   <!-- LOCKED MODULES -->
   <div class="locked-modules">
@@ -121,6 +90,106 @@
     const name = session.firstName || session.email?.split('@')[0] || 'there';
     const el = document.getElementById('dashGreet');
     if (el) el.textContent = `Welcome back, ${name}. Manage your trust profiles and documents.`;
+  })();
+
+  function trustCompleteness(data) {
+    if (!data) return 0;
+    const checks = [
+      !!data.overview?.name,
+      !!data.overview?.jurisdiction,
+      !!data.overview?.initialProperty,
+      !!data.settlor?.name,
+      (data.trustees || []).some(t => t.name),
+      (data.beneficiaries || []).some(b => b.name),
+      !!data.signing?.place
+    ];
+    return Math.round((checks.filter(Boolean).length / checks.length) * 100);
+  }
+
+  function renderTrustCard(trust) {
+    const card = document.createElement('div');
+    card.className = 'trust-card';
+
+    const left = document.createElement('div');
+    const nameEl = document.createElement('div');
+    nameEl.className = 'trust-name';
+    nameEl.textContent = trust.name || 'Untitled Trust';
+    left.appendChild(nameEl);
+
+    const meta = document.createElement('div');
+    meta.className = 'trust-meta';
+    const dateStr = trust.updatedAt ? new Date(trust.updatedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+    const jurisdiction = trust.data?.overview?.jurisdiction || '';
+    const initialProperty = trust.data?.overview?.initialProperty || '';
+    meta.textContent = [dateStr && `Last edited ${dateStr}`, jurisdiction, initialProperty].filter(Boolean).join(' · ');
+    left.appendChild(meta);
+
+    const isGenerated = trust.status === 'Generated';
+    const badgeWrap = document.createElement('div');
+    badgeWrap.style.marginTop = '12px';
+    const badge = document.createElement('span');
+    badge.className = 'status-badge ' + (isGenerated ? 'status-generated' : 'status-draft');
+    badge.textContent = isGenerated ? '● Generated' : `● Draft — ${trustCompleteness(trust.data)}% complete`;
+    badgeWrap.appendChild(badge);
+    left.appendChild(badgeWrap);
+
+    const actions = document.createElement('div');
+    actions.className = 'trust-actions';
+    if (isGenerated) {
+      const downloads = document.createElement('a');
+      downloads.className = 'btn-sm btn-navy';
+      downloads.href = '/downloads.html?id=' + encodeURIComponent(trust.id);
+      downloads.textContent = 'Downloads';
+      const preview = document.createElement('a');
+      preview.className = 'btn-sm btn-outline';
+      preview.href = '/preview.html?id=' + encodeURIComponent(trust.id);
+      preview.textContent = 'Preview';
+      const edit = document.createElement('a');
+      edit.className = 'btn-sm btn-outline';
+      edit.href = '/builder.html?id=' + encodeURIComponent(trust.id);
+      edit.textContent = 'Edit';
+      actions.append(downloads, preview, edit);
+    } else {
+      const cont = document.createElement('a');
+      cont.className = 'btn-sm btn-navy';
+      cont.href = '/builder.html?id=' + encodeURIComponent(trust.id);
+      cont.textContent = 'Continue →';
+      actions.appendChild(cont);
+    }
+    left.appendChild(actions);
+
+    card.appendChild(left);
+    if (!isGenerated) {
+      const right = document.createElement('div');
+      right.style.textAlign = 'right';
+      const label = document.createElement('div');
+      label.style.cssText = 'font-size:13px; color:var(--text-muted); font-weight:300; margin-bottom:8px;';
+      label.textContent = 'Completion';
+      const pct = document.createElement('div');
+      pct.style.cssText = 'font-size:18px; color:var(--gold); font-weight:500;';
+      pct.textContent = trustCompleteness(trust.data) + '%';
+      right.append(label, pct);
+      card.appendChild(right);
+    }
+
+    return card;
+  }
+
+  (async function loadTrusts() {
+    const listEl = document.getElementById('trustsList');
+    const emptyEl = document.getElementById('trustsEmpty');
+    try {
+      const trusts = await listTrusts();
+      if (!trusts.length) {
+        emptyEl.style.display = 'block';
+        return;
+      }
+      trusts.forEach(trust => listEl.appendChild(renderTrustCard(trust)));
+    } catch (err) {
+      console.error('[dashboard]', err);
+      emptyEl.textContent = 'Could not load your trust profiles. Please refresh to try again.';
+      emptyEl.style.display = 'block';
+    }
   })();
 </script>
 </body>
