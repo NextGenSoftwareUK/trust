@@ -503,7 +503,6 @@
     const errors = validateTrustData(data);
     document.getElementById('review-complete-banner').style.display = errors.length ? 'none' : '';
     showValidationBanner(errors);
-    applyFieldErrors(errors);
   }
 
   async function autosave() {
@@ -609,14 +608,20 @@
       '</ul>';
   }
 
+  function scrollToBanner() {
+    const banner = document.getElementById('validation-banner');
+    if (!banner) return;
+    const top = banner.getBoundingClientRect().top + window.scrollY - 80;
+    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+  }
+
   async function completeTrust() {
     const data = collectTrustData();
     const errors = validateTrustData(data);
     if (errors.length) {
       showValidationBanner(errors);
       applyFieldErrors(errors);
-      const banner = document.getElementById('validation-banner');
-      banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      scrollToBanner();
       return;
     }
     showValidationBanner([]);
@@ -631,7 +636,8 @@
       const banner = getOrCreateBanner();
       banner.style.display = '';
       banner.innerHTML = '<div class="validation-banner-title">Could not save your trust</div><ul><li style="cursor:default;text-decoration:none">' + err.message + '</li></ul>';
-      banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.getElementById('review-complete-banner').style.display = 'none';
+      scrollToBanner();
     }
   }
 
