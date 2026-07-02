@@ -58,30 +58,32 @@
   </div>
 </div>
 
-<!-- LUMINA -->
-<div class="lumina-float" id="lumina">
-  <div class="lumina-panel" id="luminaPanel">
+<!-- LEELA -->
+<div class="lumina-float" id="leela">
+  <div class="lumina-panel" id="leelaPanel">
     <div class="lumina-header">
       <div class="lumina-avatar">✨</div>
       <div>
-        <div class="lumina-name">Lumina</div>
+        <div class="lumina-name">Leela</div>
         <div class="lumina-sub">Trust Document Assistant</div>
       </div>
-      <button class="lumina-close" onclick="toggleLumina()">×</button>
+      <button class="lumina-close" onclick="toggleLeela()">×</button>
     </div>
-    <div class="lumina-body">
-      <div class="lumina-msg">Welcome back! I can help you with your trust documents or answer any questions about trust concepts. How can I assist you today?</div>
-      <div style="display:flex; flex-direction:column; gap:8px;">
-        <button onclick="luminaMsg('How do I add assets to my trust?')" style="text-align:left; background:var(--navy-pale); border:none; border-radius:var(--radius-md); padding:10px 12px; font-size:13px; color:var(--navy); cursor:pointer; font-family:'DM Sans',sans-serif;">How do I add assets to my trust?</button>
-        <button onclick="luminaMsg('Can I change my trustees?')" style="text-align:left; background:var(--navy-pale); border:none; border-radius:var(--radius-md); padding:10px 12px; font-size:13px; color:var(--navy); cursor:pointer; font-family:'DM Sans',sans-serif;">Can I change my trustees?</button>
-      </div>
-      <div class="lumina-disclaimer" style="margin-top:12px;">I explain concepts and assist with document preparation only. I cannot provide legal, tax, or financial advice.</div>
+    <div class="leela-messages" id="leelaMessages"
+      data-greeting="Welcome back! I'm Leela, your trust document assistant. I can help you understand trust concepts, guide you through the builder, or answer any questions about your trust. What would you like to know?"
+      data-suggestions='["How do I add assets to my trust?","Can I change my trustees after signing?","What is the difference between a trustee and a beneficiary?"]'>
+    </div>
+    <div class="leela-disclaimer">I explain concepts and assist with document preparation only — not legal, tax or financial advice.</div>
+    <div class="leela-input-row">
+      <input class="leela-input" id="leelaInput" type="text" placeholder="Ask Leela anything…" />
+      <button class="leela-send" id="leelaSend" aria-label="Send">→</button>
     </div>
   </div>
-  <button class="lumina-btn" onclick="toggleLumina()"><span>✨</span></button>
+  <button class="lumina-btn" onclick="toggleLeela()"><span>✨</span></button>
 </div>
 
 <script src="/js/app.js"></script>
+<script src="/js/leela.js"></script>
 <script>
   // Personalise the greeting from session
   (function () {

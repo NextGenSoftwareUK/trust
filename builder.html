@@ -334,31 +334,32 @@
   </div><!-- /.builder-main -->
 </div><!-- /.builder-layout -->
 
-<!-- LUMINA -->
-<div class="lumina-float" id="lumina">
-  <div class="lumina-panel" id="luminaPanel">
+<!-- LEELA -->
+<div class="lumina-float" id="leela">
+  <div class="lumina-panel" id="leelaPanel">
     <div class="lumina-header">
       <div class="lumina-avatar">✨</div>
       <div>
-        <div class="lumina-name">Lumina</div>
+        <div class="lumina-name">Leela</div>
         <div class="lumina-sub">Trust Document Assistant</div>
       </div>
-      <button class="lumina-close" onclick="toggleLumina()">×</button>
+      <button class="lumina-close" onclick="toggleLeela()">×</button>
     </div>
-    <div class="lumina-body">
-      <div class="lumina-msg">Hello! I'm Lumina, your trust document assistant. I can help explain terminology, clarify form fields, and guide you through the trust builder. What would you like to know?</div>
-      <div style="display:flex; flex-direction:column; gap:8px;">
-        <button onclick="luminaMsg('What is a Settlor?')" style="text-align:left; background:var(--navy-pale); border:none; border-radius:var(--radius-md); padding:10px 12px; font-size:13px; color:var(--navy); cursor:pointer; font-family:'DM Sans',sans-serif;">What is a Settlor?</button>
-        <button onclick="luminaMsg('How many trustees do I need?')" style="text-align:left; background:var(--navy-pale); border:none; border-radius:var(--radius-md); padding:10px 12px; font-size:13px; color:var(--navy); cursor:pointer; font-family:'DM Sans',sans-serif;">How many trustees do I need?</button>
-        <button onclick="luminaMsg('What is initial trust property?')" style="text-align:left; background:var(--navy-pale); border:none; border-radius:var(--radius-md); padding:10px 12px; font-size:13px; color:var(--navy); cursor:pointer; font-family:'DM Sans',sans-serif;">What is initial trust property?</button>
-      </div>
-      <div class="lumina-disclaimer" style="margin-top:12px;">I explain concepts and assist with document preparation only. I cannot provide legal, tax, or financial advice.</div>
+    <div class="leela-messages" id="leelaMessages"
+      data-greeting="Hello! I'm Leela, your trust document assistant. I'm here to help you fill in each section of the trust builder. What would you like to know?"
+      data-suggestions='["What is a Settlor?","How many trustees do I need?","What is initial trust property?","What should I put as the trust purpose?"]'>
+    </div>
+    <div class="leela-disclaimer">I explain concepts and assist with document preparation only — not legal, tax or financial advice.</div>
+    <div class="leela-input-row">
+      <input class="leela-input" id="leelaInput" type="text" placeholder="Ask Leela anything…" />
+      <button class="leela-send" id="leelaSend" aria-label="Send">→</button>
     </div>
   </div>
-  <button class="lumina-btn" onclick="toggleLumina()"><span>✨</span></button>
+  <button class="lumina-btn" onclick="toggleLeela()"><span>✨</span></button>
 </div>
 
 <script src="/js/app.js"></script>
+<script src="/js/leela.js"></script>
 <script>
   let currentStep = 0;
   const totalSteps = 7;
@@ -376,6 +377,7 @@
     document.getElementById('builderProgress').style.width = (((n + 1) / totalSteps) * 100) + '%';
     window.scrollTo(0, 0);
     if (n === totalSteps - 1) renderReview();
+    setLeelaContext({ page: 'builder', step: n, trustName: document.getElementById('f-trustName')?.value || '' });
   }
 
   function nextStep() { if (currentStep < totalSteps - 1) goStep(currentStep + 1); }
