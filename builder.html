@@ -302,7 +302,7 @@
     <div class="builder-step-content" id="step-6">
       <h1 class="builder-section-title">Review &amp; Preview</h1>
       <p class="builder-section-sub">Your trust documentation is ready for review. Please check all details carefully before proceeding to payment.</p>
-      <div style="background:var(--success-bg); border:1px solid rgba(45,106,79,0.2); border-radius:var(--radius-md); padding:16px 20px; margin-bottom:28px; display:flex; align-items:center; gap:12px;">
+      <div id="review-complete-banner" style="background:var(--success-bg); border:1px solid rgba(45,106,79,0.2); border-radius:var(--radius-md); padding:16px 20px; margin-bottom:28px; display:flex; align-items:center; gap:12px;">
         <span style="font-size:20px;">✓</span>
         <div style="font-size:14px; color:var(--success); font-weight:400;">All required sections are complete. Your trust deed is ready to preview.</div>
       </div>
@@ -500,6 +500,8 @@
       protectorEl.textContent = 'Not appointed';
       protectorEl.style.fontStyle = 'italic';
     }
+    const errors = validateTrustData(data);
+    document.getElementById('review-complete-banner').style.display = errors.length ? 'none' : '';
   }
 
   async function autosave() {
@@ -523,8 +525,99 @@
     saveTimer = setTimeout(autosave, 1200);
   }
 
+  function validateTrustData(data) {
+    const errors = [];
+
+    const req = (fieldId, label, step) => {
+      const el = document.getElementById(fieldId);
+      if (!el || !el.value.trim()) {
+        errors.push({ fieldId, label, step });
+      }
+    };
+
+    req('f-trustName',       'Trust Name',          0);
+    req('f-creationDate',    'Trust Creation Date', 0);
+    req('f-purpose',         'Trust Purpose',       0);
+    req('f-jurisdiction',    'Governing Jurisdiction', 0);
+    req('f-initialProperty', 'Initial Trust Property', 0);
+
+    req('f-settlorName',    'Settlor Full Legal Name', 1);
+    req('f-settlorAddress', 'Settlor Full Address',    1);
+    req('f-settlorEmail',   'Settlor Email Address',   1);
+
+    const trustees = [...document.querySelectorAll('#trustees-container .party-card')];
+    trustees.forEach((card, i) => {
+      const nameEl = card.querySelector('[data-field="name"]');
+      const addrEl = card.querySelector('[data-field="address"]');
+      if (!nameEl?.value.trim()) errors.push({ fieldId: null, label: `Trustee ${i + 1} Full Legal Name`, step: 2 });
+      if (!addrEl?.value.trim()) errors.push({ fieldId: null, label: `Trustee ${i + 1} Full Address`,    step: 2 });
+    });
+
+    const beneficiaries = [...document.querySelectorAll('#beneficiaries-container .party-card')];
+    beneficiaries.forEach((card, i) => {
+      const nameEl = card.querySelector('[data-field="name"]');
+      const addrEl = card.querySelector('[data-field="address"]');
+      if (!nameEl?.value.trim()) errors.push({ fieldId: null, label: `Beneficiary ${i + 1} Full Legal Name`, step: 3 });
+      if (!addrEl?.value.trim()) errors.push({ fieldId: null, label: `Beneficiary ${i + 1} Full Address`,    step: 3 });
+    });
+
+    req('f-signingPlace',   'Place of Signing',    5);
+    req('f-witness1Name',   'Witness 1 Full Name', 5);
+    req('f-witness1Address','Witness 1 Address',   5);
+    req('f-witness2Name',   'Witness 2 Full Name', 5);
+    req('f-witness2Address','Witness 2 Address',   5);
+
+    return errors;
+  }
+
+  function showValidationBanner(errors) {
+    document.querySelectorAll('.field-input--error').forEach(el => el.classList.remove('field-input--error'));
+    document.querySelectorAll('.field-error-msg').forEach(el => el.remove());
+    let banner = document.getElementById('validation-banner');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'validation-banner';
+      banner.className = 'validation-banner';
+      const reviewStep = document.getElementById('step-6');
+      reviewStep.insertBefore(banner, reviewStep.firstChild);
+    }
+    if (!errors.length) { banner.style.display = 'none'; return; }
+
+    banner.style.display = '';
+    banner.innerHTML = '<div class="validation-banner-title">Please fix the following before previewing your trust:</div><ul>' +
+      errors.map(e => `<li onclick="goStep(${e.step})">${e.label} (click to go to step ${e.step + 1})</li>`).join('') +
+      '</ul>';
+
+    errors.forEach(e => {
+      if (!e.fieldId) return;
+      const el = document.getElementById(e.fieldId);
+      if (!el) return;
+      el.classList.add('field-input--error');
+      const msg = document.createElement('div');
+      msg.className = 'field-error-msg';
+      msg.textContent = e.label + ' is required.';
+      el.parentNode.insertBefore(msg, el.nextSibling);
+      el.addEventListener('input', function fix() {
+        if (el.value.trim()) {
+          el.classList.remove('field-input--error');
+          msg.remove();
+          el.removeEventListener('input', fix);
+        }
+      });
+    });
+  }
+
   async function completeTrust() {
     const data = collectTrustData();
+    const errors = validateTrustData(data);
+    if (errors.length) {
+      showValidationBanner(errors);
+      goStep(errors[0].step);
+      const firstField = document.getElementById(errors[0].fieldId);
+      if (firstField) firstField.focus();
+      return;
+    }
+    showValidationBanner([]);
     const name = data.overview.name || 'Untitled Trust';
     try {
       const result = await saveTrust({ id: trustId, name, status: 'Generated', data });
@@ -532,7 +625,16 @@
       await awardKarma('TrustCompleted');
       window.location.href = '/preview.html?id=' + encodeURIComponent(trustId);
     } catch (err) {
-      alert('Could not save your trust: ' + err.message);
+      let banner = document.getElementById('validation-banner');
+      if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'validation-banner';
+        banner.className = 'validation-banner';
+        const reviewStep = document.getElementById('step-6');
+        reviewStep.insertBefore(banner, reviewStep.firstChild);
+      }
+      banner.style.display = '';
+      banner.innerHTML = '<div class="validation-banner-title">Could not save your trust</div><ul><li style="cursor:default;text-decoration:none">' + err.message + '</li></ul>';
     }
   }
 
