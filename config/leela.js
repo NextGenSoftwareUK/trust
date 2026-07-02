@@ -34,4 +34,10 @@ module.exports = {
   // across all users and sessions — the more it is used, the better it gets.
   // Falls back silently if no graph has been seeded yet.
   useHolonicBraid: true,
+
+  // Route through OpenServ gateway instead of calling the provider API directly.
+  // null = use OASIS_DNA.Web6.PreferOpenServ default (recommended for production).
+  // true = always route via OpenServ (one SERV_API_KEY covers all models).
+  // false = always call the provider directly (requires the provider's own API key).
+  useOpenServ: null,
 };

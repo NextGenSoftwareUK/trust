@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@oasisomniverse/web4-api": "^2.0.2",
-    "@oasisomniverse/web6-api": "^1.0.1",
+    "@oasisomniverse/web6-api": "^1.0.2",
     "pdf-lib": "^1.17.1",
     "stripe": "^22.3.0"
   }
