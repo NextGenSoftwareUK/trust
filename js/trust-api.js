@@ -3,7 +3,7 @@
    Requires js/auth.js to be loaded first (getSession()).
    ═══════════════════════════════════════════════════════ */
 
-async function trustApiFetch(path, options = {}) {
+async function trustApiFetch(path, options = {}, _retried = false) {
   const session = getSession();
   if (!session?.token) throw new Error('Not signed in.');
 
@@ -15,6 +15,16 @@ async function trustApiFetch(path, options = {}) {
       ...(options.headers || {})
     }
   });
+
+  // Auto-refresh JWT on 401 and retry once.
+  if (res.status === 401 && !_retried) {
+    const newToken = await refreshSession();
+    if (newToken) return trustApiFetch(path, options, true);
+    // Refresh failed — force logout so the user sees the login page.
+    authLogout();
+    throw new Error('Session expired. Please sign in again.');
+  }
+
   const json = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(json.error || `Request failed (${res.status})`);
   return json;

@@ -57,6 +57,27 @@ function updateNav() {
   // Not signed in: keep static HTML from the page (Education / Sign in / Create Account)
 }
 
+// ─── Token refresh ────────────────────────────────────
+// Returns the new JWT token string, or null if refresh failed (caller should logout).
+async function refreshSession() {
+  const session = getSession();
+  if (!session?.refreshToken) return null;
+  try {
+    const res = await fetch('/api/auth-refresh', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken: session.refreshToken }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data.token) return null;
+    setSession({ ...session, token: data.token, refreshToken: data.refreshToken || session.refreshToken });
+    return data.token;
+  } catch {
+    return null;
+  }
+}
+
 // ─── Logout ────────────────────────────────────────────
 function authLogout() {
   clearSession();
