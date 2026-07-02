@@ -1,4 +1,4 @@
-const { OASISClient } = require('web4-oasis-api');
+const { OASISClient } = require('@oasisomniverse/web4-api');
 
 //const OASIS_API = process.env.OASIS_API_URL || 'https://api.oasisweb4.one';
 const OASIS_API = process.env.OASIS_API_URL || 'api.web4.oasisomniverse.one';
