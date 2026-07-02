@@ -7,6 +7,7 @@
     "node": ">=18"
   },
   "dependencies": {
+    "@oasisomniverse/web6-api": "^1.0.1",
     "pdf-lib": "^1.17.1",
     "stripe": "^22.3.0",
     "web4-oasis-api": "file:../OASIS-API-Javascipt-Package"
