@@ -1,7 +1,7 @@
 const { OASISClient } = require('@oasisomniverse/web4-api');
 
 //const OASIS_API = process.env.OASIS_API_URL || 'https://api.oasisweb4.one';
-const OASIS_API = process.env.OASIS_API_URL || 'api.web4.oasisomniverse.one';
+const OASIS_API = process.env.OASIS_API_URL || 'https://api.web4.oasisomniverse.one';
 
 function getBearerToken(req) {
   const header = req.headers['authorization'] || req.headers['Authorization'];
