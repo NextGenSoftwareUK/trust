@@ -64,26 +64,32 @@
   </div>
 </div>
 
-<!-- LUMINA -->
-<div class="lumina-float" id="lumina">
-  <div class="lumina-panel" id="luminaPanel">
+<!-- LEELA -->
+<div class="lumina-float" id="leela">
+  <div class="lumina-panel" id="leelaPanel">
     <div class="lumina-header">
       <div class="lumina-avatar">✨</div>
       <div>
-        <div class="lumina-name">Lumina</div>
+        <div class="lumina-name">Leela</div>
         <div class="lumina-sub">Trust Document Assistant</div>
       </div>
-      <button class="lumina-close" onclick="toggleLumina()">×</button>
+      <button class="lumina-close" onclick="toggleLeela()">×</button>
     </div>
-    <div class="lumina-body">
-      <div class="lumina-msg">Congratulations on generating your trust documents! Remember to have these reviewed by a qualified legal professional before signing. Do you have any questions?</div>
-      <div class="lumina-disclaimer" style="margin-top:12px;">I explain concepts and assist with document preparation only. I cannot provide legal, tax, or financial advice.</div>
+    <div class="leela-messages" id="leelaMessages"
+      data-greeting="Congratulations on generating your trust documents! Remember to have these reviewed by a qualified legal professional before signing. Do you have any questions?"
+      data-suggestions='["What are the next steps after downloading?","How should the trust deed be signed?","Do I need to register my trust?"]'>
+    </div>
+    <div class="leela-disclaimer">I explain concepts and assist with document preparation only — not legal, tax or financial advice.</div>
+    <div class="leela-input-row">
+      <input class="leela-input" id="leelaInput" type="text" placeholder="Ask Leela anything…" />
+      <button class="leela-send" id="leelaSend" aria-label="Send">→</button>
     </div>
   </div>
-  <button class="lumina-btn" onclick="toggleLumina()"><span>✨</span></button>
+  <button class="lumina-btn" onclick="toggleLeela()"><span>✨</span></button>
 </div>
 
 <script src="/js/app.js"></script>
+<script src="/js/leela.js"></script>
 <script>
   const params = new URLSearchParams(window.location.search);
   const trustId = params.get('id');
