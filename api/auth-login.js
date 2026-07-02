@@ -25,6 +25,7 @@ module.exports = async function handler(req, res) {
       success: true,
       session: {
         token: session.jwtToken,
+        refreshToken: session.refreshToken || '',
         avatarId: session.avatarId,
         username: session.username || email,
         email: session.email || email,
