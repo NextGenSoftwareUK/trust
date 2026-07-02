@@ -502,6 +502,8 @@
     }
     const errors = validateTrustData(data);
     document.getElementById('review-complete-banner').style.display = errors.length ? 'none' : '';
+    showValidationBanner(errors);
+    applyFieldErrors(errors);
   }
 
   async function autosave() {
@@ -570,9 +572,7 @@
     return errors;
   }
 
-  function showValidationBanner(errors) {
-    document.querySelectorAll('.field-input--error').forEach(el => el.classList.remove('field-input--error'));
-    document.querySelectorAll('.field-error-msg').forEach(el => el.remove());
+  function getOrCreateBanner() {
     let banner = document.getElementById('validation-banner');
     if (!banner) {
       banner = document.createElement('div');
@@ -581,13 +581,12 @@
       const reviewStep = document.getElementById('step-6');
       reviewStep.insertBefore(banner, reviewStep.firstChild);
     }
-    if (!errors.length) { banner.style.display = 'none'; return; }
+    return banner;
+  }
 
-    banner.style.display = '';
-    banner.innerHTML = '<div class="validation-banner-title">Please fix the following before previewing your trust:</div><ul>' +
-      errors.map(e => `<li onclick="goStep(${e.step})">${e.label} (click to go to step ${e.step + 1})</li>`).join('') +
-      '</ul>';
-
+  function applyFieldErrors(errors) {
+    document.querySelectorAll('.field-input--error').forEach(el => el.classList.remove('field-input--error'));
+    document.querySelectorAll('.field-error-msg').forEach(el => el.remove());
     errors.forEach(e => {
       if (!e.fieldId) return;
       const el = document.getElementById(e.fieldId);
@@ -597,14 +596,17 @@
       msg.className = 'field-error-msg';
       msg.textContent = e.label + ' is required.';
       el.parentNode.insertBefore(msg, el.nextSibling);
-      el.addEventListener('input', function fix() {
-        if (el.value.trim()) {
-          el.classList.remove('field-input--error');
-          msg.remove();
-          el.removeEventListener('input', fix);
-        }
-      });
     });
+  }
+
+  function showValidationBanner(errors) {
+    const banner = getOrCreateBanner();
+    if (!errors.length) { banner.style.display = 'none'; return; }
+    banner.style.display = '';
+    const stepNames = ['Trust Overview','Settlor Details','Trustee(s)','Beneficiaries','Protector','Signing Details'];
+    banner.innerHTML = '<div class="validation-banner-title">Please complete the following required fields before previewing:</div><ul>' +
+      errors.map(e => `<li onclick="goStep(${e.step})">${e.label} <span style="opacity:.7;font-size:11px;">(${stepNames[e.step]})</span></li>`).join('') +
+      '</ul>';
   }
 
   async function completeTrust() {
@@ -612,12 +614,13 @@
     const errors = validateTrustData(data);
     if (errors.length) {
       showValidationBanner(errors);
-      goStep(errors[0].step);
-      const firstField = document.getElementById(errors[0].fieldId);
-      if (firstField) firstField.focus();
+      applyFieldErrors(errors);
+      const banner = document.getElementById('validation-banner');
+      banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
       return;
     }
     showValidationBanner([]);
+    applyFieldErrors([]);
     const name = data.overview.name || 'Untitled Trust';
     try {
       const result = await saveTrust({ id: trustId, name, status: 'Generated', data });
@@ -625,16 +628,10 @@
       await awardKarma('TrustCompleted');
       window.location.href = '/preview.html?id=' + encodeURIComponent(trustId);
     } catch (err) {
-      let banner = document.getElementById('validation-banner');
-      if (!banner) {
-        banner = document.createElement('div');
-        banner.id = 'validation-banner';
-        banner.className = 'validation-banner';
-        const reviewStep = document.getElementById('step-6');
-        reviewStep.insertBefore(banner, reviewStep.firstChild);
-      }
+      const banner = getOrCreateBanner();
       banner.style.display = '';
       banner.innerHTML = '<div class="validation-banner-title">Could not save your trust</div><ul><li style="cursor:default;text-decoration:none">' + err.message + '</li></ul>';
+      banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
 
