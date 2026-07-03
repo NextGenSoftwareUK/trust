@@ -27,16 +27,27 @@ module.exports = async function handler(req, res) {
 
   const { avatarId, id } = req.query || {};
 
-  // Single trust lookup by ID
+  // Single trust lookup by ID — use GET endpoint (simpler code path than POST)
   if (id) {
     try {
-      const oasis = createClient(token);
-      const raw = await oasis.data.loadHolon({ Id: id });
-      console.log('[trust-get] raw response:', JSON.stringify(raw));
-      const { isError, message, result } = raw;
-      if (isError) return res.status(400).json({ error: message || 'Failed to load trust.', _debug: raw });
-      if (!result) return res.status(404).json({ error: 'Trust not found.', _debug: raw });
-      return res.status(200).json({ success: true, trust: parseHolon(result), _debug_keys: Object.keys(result) });
+      const { OASIS_API } = require('./_oasis');
+      const apiRes = await fetch(`${OASIS_API}/api/data/load-holon/${encodeURIComponent(id)}`, {
+        headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' }
+      });
+      const text = await apiRes.text();
+      console.log('[trust-get] status:', apiRes.status, 'body:', text.slice(0, 500));
+      let json;
+      try { json = text ? JSON.parse(text) : null; } catch { json = null; }
+      if (!apiRes.ok || !json) {
+        return res.status(apiRes.ok ? 404 : apiRes.status).json({ error: 'Trust not found.', _debug: { status: apiRes.status, body: text.slice(0, 500) } });
+      }
+      // Unwrap OASISHttpResponseMessage -> OASISResult -> payload
+      const inner = json?.result ?? json;
+      const holon = inner?.result ?? inner;
+      if (!holon || inner?.isError) {
+        return res.status(404).json({ error: 'Trust not found.', _debug: { status: apiRes.status, json } });
+      }
+      return res.status(200).json({ success: true, trust: parseHolon(holon), _debug: { status: apiRes.status, holonKeys: Object.keys(holon) } });
     } catch (err) {
       console.error('[trust-list/get]', err);
       return res.status(500).json({ error: err.message, _stack: err.stack });
