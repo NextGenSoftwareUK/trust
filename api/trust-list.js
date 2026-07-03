@@ -31,13 +31,15 @@ module.exports = async function handler(req, res) {
   if (id) {
     try {
       const oasis = createClient(token);
-      const { isError, message, result } = await oasis.data.loadHolon({ Id: id });
-      if (isError) return res.status(400).json({ error: message || 'Failed to load trust.' });
-      if (!result) return res.status(404).json({ error: 'Trust not found.' });
-      return res.status(200).json({ success: true, trust: parseHolon(result) });
+      const raw = await oasis.data.loadHolon({ Id: id });
+      console.log('[trust-get] raw response:', JSON.stringify(raw));
+      const { isError, message, result } = raw;
+      if (isError) return res.status(400).json({ error: message || 'Failed to load trust.', _debug: raw });
+      if (!result) return res.status(404).json({ error: 'Trust not found.', _debug: raw });
+      return res.status(200).json({ success: true, trust: parseHolon(result), _debug_keys: Object.keys(result) });
     } catch (err) {
       console.error('[trust-list/get]', err);
-      return res.status(500).json({ error: 'Failed to load trust. Please try again.' });
+      return res.status(500).json({ error: err.message, _stack: err.stack });
     }
   }
 
