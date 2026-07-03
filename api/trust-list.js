@@ -31,9 +31,11 @@ module.exports = async function handler(req, res) {
   if (id) {
     try {
       const { OASIS_API } = require('./_oasis');
-      // loadChildren=false to avoid truncated/circular response from large child trees
-      const apiRes = await fetch(`${OASIS_API}/api/data/load-holon/${encodeURIComponent(id)}/false/false/0/true/0`, {
-        headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' }
+      // POST with LoadChildren=false to avoid truncated/circular response from large child trees
+      const apiRes = await fetch(`${OASIS_API}/api/data/load-holon`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ Id: id, LoadChildren: false, Recursive: false })
       });
       const text = await apiRes.text();
       let json;
