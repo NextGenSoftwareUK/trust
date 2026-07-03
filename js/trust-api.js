@@ -54,7 +54,7 @@ async function deleteTrust(id) {
 }
 
 async function getTrustById(id) {
-  const json = await trustApiFetch(`/api/trust-get?id=${encodeURIComponent(id)}`, { method: 'GET' });
+  const json = await trustApiFetch(`/api/trust-list?id=${encodeURIComponent(id)}`, { method: 'GET' });
   return json.trust || null;
 }
 

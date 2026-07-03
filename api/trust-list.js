@@ -25,9 +25,24 @@ module.exports = async function handler(req, res) {
     return res.status(401).json({ error: 'Missing or invalid Authorization header.' });
   }
 
-  const { avatarId } = req.query || {};
+  const { avatarId, id } = req.query || {};
+
+  // Single trust lookup by ID
+  if (id) {
+    try {
+      const oasis = createClient(token);
+      const { isError, message, result } = await oasis.data.loadHolon({ Id: id });
+      if (isError) return res.status(400).json({ error: message || 'Failed to load trust.' });
+      if (!result) return res.status(404).json({ error: 'Trust not found.' });
+      return res.status(200).json({ success: true, trust: parseHolon(result) });
+    } catch (err) {
+      console.error('[trust-list/get]', err);
+      return res.status(500).json({ error: 'Failed to load trust. Please try again.' });
+    }
+  }
+
   if (!avatarId) {
-    return res.status(400).json({ error: 'avatarId is required.' });
+    return res.status(400).json({ error: 'avatarId or id is required.' });
   }
 
   try {
