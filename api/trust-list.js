@@ -32,7 +32,7 @@ module.exports = async function handler(req, res) {
 
   try {
     const oasis = createClient(token);
-    const { isError, message, result } = await oasis.data.loadHolonsForParent({ Id: avatarId, HolonType: 141 }); // HolonType.Trust
+    const { isError, message, result } = await oasis.data.loadHolonsForParent({ Id: avatarId, HolonType: 'Trust' });
 
     if (isError) {
       return res.status(400).json({ error: message || 'Failed to load trusts.' });
