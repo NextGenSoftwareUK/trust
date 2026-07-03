@@ -76,7 +76,9 @@
       return;
     }
     try {
-      currentTrust = await getTrustById(trustId);
+      const cached = sessionStorage.getItem('trustData_' + trustId);
+      if (cached) { try { currentTrust = JSON.parse(cached); } catch {} }
+      if (!currentTrust) currentTrust = await getTrustById(trustId);
       if (!currentTrust) {
         errorEl.textContent = 'Trust not found.';
         payBtn.disabled = true;

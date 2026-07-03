@@ -630,6 +630,7 @@
     try {
       const result = await saveTrust({ id: trustId, name, status: 'Generated', data });
       trustId = result.trust?.id || result.trust?.Id || trustId;
+      sessionStorage.setItem('trustData_' + trustId, JSON.stringify({ id: trustId, name, data }));
       await awardKarma('TrustCompleted');
       window.location.href = '/preview.html?id=' + encodeURIComponent(trustId);
     } catch (err) {

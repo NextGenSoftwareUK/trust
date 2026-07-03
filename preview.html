@@ -154,7 +154,12 @@
     document.getElementById('payLink').href = `/checkout.html?id=${encodeURIComponent(trustId)}`;
 
     try {
-      const trust = await getTrustById(trustId);
+      let trust = null;
+      const cached = sessionStorage.getItem('trustData_' + trustId);
+      if (cached) {
+        try { trust = JSON.parse(cached); } catch {}
+      }
+      if (!trust) trust = await getTrustById(trustId);
       if (!trust) {
         document.getElementById('docTrustName').textContent = 'Trust not found.';
         return;
