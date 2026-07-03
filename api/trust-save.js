@@ -20,7 +20,7 @@ module.exports = async function handler(req, res) {
     Id: id || '00000000-0000-0000-0000-000000000000',
     Name: name,
     Description: `SovereignTrust trust profile (${status || 'Draft'})`,
-    HolonType: 'Trust',
+    HolonType: 141, // HolonType.Trust enum value
     ParentHolonId: avatarId,
     MetaData: {
       trustData: JSON.stringify(data),
