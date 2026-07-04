@@ -86,7 +86,10 @@ module.exports = async function handler(req, res) {
     });
 
     if (r.isError || !r.result?.Content) {
-      throw new Error(r.message || 'WEB6 returned an empty completion response');
+      // OASISResult properties may be PascalCase or camelCase depending on API version.
+      const msg = r.Message || r.message || r.DetailedMessage || r.detailedMessage;
+      console.error('[leela-chat] WEB6 error response:', JSON.stringify(r));
+      throw new Error(msg || 'WEB6 returned an empty completion response');
     }
 
     return res.status(200).json({ reply: r.result.Content });
