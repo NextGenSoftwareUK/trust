@@ -164,7 +164,7 @@ async function handler(req, res) {
     return res.status(401).json({ error: 'Missing or invalid Authorization header.' });
   }
 
-  const { id, avatarId } = req.query || {};
+  const { id, avatarId, session_id } = req.query || {};
   if (!id || !avatarId) {
     return res.status(400).json({ error: 'id and avatarId are required.' });
   }
@@ -192,7 +192,20 @@ async function handler(req, res) {
 
     const meta = holon.metaData || holon.MetaData || {};
     const status = meta.status || meta.Status || 'Draft';
-    if (status !== 'Paid') {
+
+    // Accept OASIS-stored 'Paid' status OR verify directly via Stripe session_id.
+    let isPaid = status === 'Paid';
+    if (!isPaid && session_id) {
+      try {
+        const Stripe = require('stripe');
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+        const stripeSession = await stripe.checkout.sessions.retrieve(session_id);
+        isPaid = stripeSession.payment_status === 'paid' &&
+                 (stripeSession.metadata?.trustId === id || stripeSession.metadata?.avatarId === avatarId);
+      } catch { /* Stripe check failed — fall through to unpaid */ }
+    }
+
+    if (!isPaid) {
       return res.status(402).json({ error: 'Payment is required before this document can be downloaded.' });
     }
 
