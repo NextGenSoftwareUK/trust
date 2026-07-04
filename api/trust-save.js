@@ -33,13 +33,15 @@ module.exports = async function handler(req, res) {
 
   try {
     const oasis = createClient(token);
-    const { isError, message, result } = await oasis.data.saveHolon({ Holon: holon, SaveChildren: true });
+    const saveRes = await oasis.data.saveHolon({ Holon: holon, SaveChildren: true });
 
-    if (isError) {
-      return res.status(400).json({ error: message || 'Save failed.' });
+    console.log('[trust-save] OASIS result: isError=', saveRes.isError, 'message=', saveRes.message, 'resultId=', saveRes.result?.id || saveRes.result?.Id || '(none)');
+
+    if (saveRes.isError) {
+      return res.status(400).json({ error: saveRes.message || 'Save failed.' });
     }
 
-    return res.status(200).json({ success: true, trust: result });
+    return res.status(200).json({ success: true, trust: saveRes.result });
 
   } catch (err) {
     console.error('[trust-save]', err);
