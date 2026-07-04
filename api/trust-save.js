@@ -12,6 +12,8 @@ module.exports = async function handler(req, res) {
 
   const { id, avatarId, name, status, data } = req.body || {};
 
+  console.log('[trust-save] status:', status, 'name:', name, 'data keys:', data ? Object.keys(data) : null, 'settlor name:', data?.settlor?.name || '(empty)', 'trustData len:', JSON.stringify(data || {}).length);
+
   if (!avatarId || !name || !data) {
     return res.status(400).json({ error: 'avatarId, name and data are required.' });
   }
