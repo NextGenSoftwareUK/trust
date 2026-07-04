@@ -116,7 +116,7 @@
       btn.disabled = true;
       btn.textContent = 'Preparing…';
       try {
-        await downloadTrustDocument(trustId, `${name.replace(/[^a-z0-9]+/gi, '_')}_Deed.pdf`);
+        await downloadTrustDocument(trustId, `${name.replace(/[^a-z0-9]+/gi, '_')}_Deed.pdf`, stripeSessionId);
       } catch (err) {
         showError(err.message);
       } finally {
