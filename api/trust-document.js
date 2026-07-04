@@ -170,14 +170,21 @@ async function handler(req, res) {
   }
 
   try {
-    const oasis = createClient(token);
-    const { isError, message, result } = await oasis.data.loadHolon({ Id: id });
+    const { OASIS_API } = require('./_oasis');
+    const apiRes = await fetch(`${OASIS_API}/api/data/load-holon`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ Id: id, LoadChildren: false, Recursive: false })
+    });
+    const text = await apiRes.text();
+    let json;
+    try { json = text ? JSON.parse(text) : null; } catch { json = null; }
+    const inner = json?.result ?? json;
+    const holon = inner?.result ?? inner;
 
-    if (isError || !result) {
-      return res.status(404).json({ error: message || 'Trust not found.' });
+    if (!apiRes.ok || !holon || inner?.isError) {
+      return res.status(404).json({ error: inner?.message || 'Trust not found.' });
     }
-
-    const holon = result;
     const parentId = holon.parentHolonId || holon.ParentHolonId;
     if (String(parentId) !== String(avatarId)) {
       return res.status(403).json({ error: 'You do not have access to this trust.' });
