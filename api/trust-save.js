@@ -18,11 +18,14 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'avatarId, name and data are required.' });
   }
 
-  const holon = {
-    Id: id || '00000000-0000-0000-0000-000000000000',
+  const nullGuid = '00000000-0000-0000-0000-000000000000';
+  const isUpdate = id && id !== nullGuid;
+
+  let holon = {
+    Id: id || nullGuid,
     Name: name,
     Description: `SovereignTrust trust profile (${status || 'Draft'})`,
-    HolonType: 141, // HolonType.Trust enum value
+    HolonType: 141,
     ParentHolonId: avatarId,
     MetaData: {
       trustData: JSON.stringify(data),
@@ -33,6 +36,42 @@ module.exports = async function handler(req, res) {
 
   try {
     const oasis = createClient(token);
+    const { OASIS_API } = require('./_oasis');
+
+    // For updates, load the existing holon first so we carry back its
+    // ProviderUniqueStorageKey — without it MongoDBOASIS.SaveHolonAsync
+    // always calls AddAsync (insert) instead of UpdateAsync.
+    if (isUpdate) {
+      try {
+        const loadRes = await fetch(`${OASIS_API}/api/data/load-holon`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ Id: id, LoadChildren: false, Recursive: false })
+        });
+        const loadText = await loadRes.text();
+        const loadJson = loadText ? JSON.parse(loadText) : null;
+        const inner = loadJson?.result ?? loadJson;
+        const existing = inner?.result ?? inner;
+        if (existing && !inner?.isError) {
+          // Spread the full existing holon so ProviderUniqueStorageKey is preserved,
+          // then override only the fields we're updating.
+          holon = {
+            ...existing,
+            Name: name,
+            Description: `SovereignTrust trust profile (${status || 'Draft'})`,
+            MetaData: {
+              ...(existing.metaData || existing.MetaData || {}),
+              trustData: JSON.stringify(data),
+              status: status || 'Draft',
+              updatedAt: new Date().toISOString()
+            }
+          };
+        }
+      } catch (loadErr) {
+        console.error('[trust-save] load-before-update failed, proceeding with new holon:', loadErr.message);
+      }
+    }
+
     const saveRes = await oasis.data.saveHolon({ Holon: holon, SaveChildren: true });
 
     console.log('[trust-save] OASIS result: isError=', saveRes.isError, 'message=', saveRes.message, 'resultId=', saveRes.result?.id || saveRes.result?.Id || '(none)');
