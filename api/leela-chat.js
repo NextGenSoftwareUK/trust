@@ -85,14 +85,20 @@ module.exports = async function handler(req, res) {
       },
     });
 
-    if (r.isError || !r.result?.Content) {
-      // OASISResult properties may be PascalCase or camelCase depending on API version.
-      const msg = r.Message || r.message || r.DetailedMessage || r.detailedMessage;
-      console.error('[leela-chat] WEB6 error response:', JSON.stringify(r));
-      throw new Error(msg || 'WEB6 returned an empty completion response');
+    // OASISResult properties may be PascalCase or camelCase depending on API/client version.
+    const isError   = r.isError   ?? r.IsError   ?? false;
+    const content   = r.result?.content ?? r.result?.Content ?? r.Result?.content ?? r.Result?.Content;
+    const msg       = r.message   || r.Message   || r.detailedMessage || r.DetailedMessage;
+
+    console.error('[leela-chat] WEB6 raw response keys:', Object.keys(r));
+    console.error('[leela-chat] WEB6 result keys:', r.result ? Object.keys(r.result) : r.Result ? Object.keys(r.Result) : 'no result');
+
+    if (isError || !content) {
+      console.error('[leela-chat] WEB6 error — isError:', isError, '| content:', content, '| msg:', msg);
+      throw new Error(msg || `WEB6 returned an empty completion response. Keys: ${JSON.stringify(Object.keys(r))}`);
     }
 
-    return res.status(200).json({ reply: r.result.Content });
+    return res.status(200).json({ reply: content });
 
   } catch (err) {
     console.error('[leela-chat]', err);
