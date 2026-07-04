@@ -147,7 +147,7 @@
         if (status.paid) {
           await saveTrust({ id: trustId, name: trust.name, status: 'Paid', data: trust.data });
           await awardKarma('TrustDocumentGenerated');
-          trust = await getTrustById(trustId);
+          trust = { ...trust, status: 'Paid' };
         } else {
           showError('Payment was not completed. Please try checking out again.');
         }
