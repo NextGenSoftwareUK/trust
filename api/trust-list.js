@@ -1,16 +1,16 @@
 const { getBearerToken, createClient } = require('./_oasis');
 
 function parseHolon(holon) {
-  const meta = holon.metaData || holon.MetaData || {};
+  const meta = holon.metaData || {};
   let data = {};
-  try { data = JSON.parse(meta.trustData || meta.TrustData || '{}'); } catch {}
+  try { data = JSON.parse(meta.trustData || '{}'); } catch {}
 
   return {
-    id: holon.id || holon.Id,
-    name: holon.name || holon.Name,
-    status: meta.status || meta.Status || 'Draft',
-    updatedAt: meta.updatedAt || meta.UpdatedAt || holon.modifiedDate || holon.ModifiedDate || null,
-    createdAt: holon.createdDate || holon.CreatedDate || null,
+    id: holon.id,
+    name: holon.name,
+    status: meta.status || 'Draft',
+    updatedAt: meta.updatedAt || holon.modifiedDate || null,
+    createdAt: holon.createdDate || null,
     data
   };
 }
@@ -27,33 +27,17 @@ module.exports = async function handler(req, res) {
 
   const { avatarId, id } = req.query || {};
 
-  // Single trust lookup by ID — use GET endpoint (simpler code path than POST)
   if (id) {
     try {
-      const { OASIS_API } = require('./_oasis');
-      // POST with LoadChildren=false to avoid truncated/circular response from large child trees
-      const apiRes = await fetch(`${OASIS_API}/api/data/load-holon`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ Id: id, LoadChildren: false, Recursive: false })
-      });
-      const text = await apiRes.text();
-      let json;
-      let parseErr = null;
-      try { json = text ? JSON.parse(text) : null; } catch (e) { parseErr = e.message; }
-      if (!apiRes.ok || !json) {
-        return res.status(apiRes.ok ? 404 : apiRes.status).json({ error: 'Trust not found.', _debug: { status: apiRes.status, parseErr, bodyLen: text.length, body: text.slice(0, 800) } });
+      const oasis = createClient(token);
+      const { isError, message, result } = await oasis.data.loadHolon({ Id: id, LoadChildren: false, Recursive: false });
+      if (isError || !result) {
+        return res.status(404).json({ error: message || 'Trust not found.' });
       }
-      // Unwrap OASISHttpResponseMessage -> OASISResult -> payload
-      const inner = json?.result ?? json;
-      const holon = inner?.result ?? inner;
-      if (!holon || inner?.isError) {
-        return res.status(404).json({ error: 'Trust not found.', _debug: { inner } });
-      }
-      return res.status(200).json({ success: true, trust: parseHolon(holon) });
+      return res.status(200).json({ success: true, trust: parseHolon(result) });
     } catch (err) {
       console.error('[trust-list/get]', err);
-      return res.status(500).json({ error: err.message, _stack: err.stack });
+      return res.status(500).json({ error: err.message });
     }
   }
 
@@ -70,9 +54,7 @@ module.exports = async function handler(req, res) {
     }
 
     const holons = Array.isArray(result) ? result : [];
-    const trusts = holons.map(parseHolon);
-
-    return res.status(200).json({ success: true, trusts });
+    return res.status(200).json({ success: true, trusts: holons.map(parseHolon) });
 
   } catch (err) {
     console.error('[trust-list]', err);

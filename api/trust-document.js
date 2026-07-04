@@ -170,28 +170,18 @@ async function handler(req, res) {
   }
 
   try {
-    const { OASIS_API } = require('./_oasis');
-    const apiRes = await fetch(`${OASIS_API}/api/data/load-holon`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({ Id: id, LoadChildren: false, Recursive: false })
-    });
-    const text = await apiRes.text();
-    let json;
-    try { json = text ? JSON.parse(text) : null; } catch { json = null; }
-    const inner = json?.result ?? json;
-    const holon = inner?.result ?? inner;
+    const oasis = createClient(token);
+    const { isError, message, result: holon } = await oasis.data.loadHolon({ Id: id, LoadChildren: false, Recursive: false });
 
-    if (!apiRes.ok || !holon || inner?.isError) {
-      return res.status(404).json({ error: inner?.message || 'Trust not found.' });
+    if (isError || !holon) {
+      return res.status(404).json({ error: message || 'Trust not found.' });
     }
-    const parentId = holon.parentHolonId || holon.ParentHolonId;
-    if (String(parentId) !== String(avatarId)) {
+    if (String(holon.parentHolonId) !== String(avatarId)) {
       return res.status(403).json({ error: 'You do not have access to this trust.' });
     }
 
-    const meta = holon.metaData || holon.MetaData || {};
-    const status = meta.status || meta.Status || 'Draft';
+    const meta = holon.metaData || {};
+    const status = meta.status || 'Draft';
 
     // Accept OASIS-stored 'Paid' status OR verify directly via Stripe session_id.
     let isPaid = status === 'Paid';
@@ -210,9 +200,9 @@ async function handler(req, res) {
     }
 
     let trustData = {};
-    try { trustData = JSON.parse(meta.trustData || meta.TrustData || '{}'); } catch {}
+    try { trustData = JSON.parse(meta.trustData || '{}'); } catch {}
 
-    const trustName = holon.name || holon.Name || trustData.overview?.name || 'Trust Deed';
+    const trustName = holon.name || trustData.overview?.name || 'Trust Deed';
     const pdfBytes = await buildTrustDeedPdf(trustData, trustName);
 
     const safeName = trustName.replace(/[^a-z0-9]+/gi, '_').replace(/^_+|_+$/g, '') || 'Trust_Deed';
