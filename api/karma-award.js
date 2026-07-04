@@ -32,7 +32,7 @@ module.exports = async function handler(req, res) {
 
   try {
     const oasis = createClient(token);
-    const { isError, message } = await oasis.karma.addKarmaToAvatar({
+    const karmaRes = await oasis.karma.addKarmaToAvatar({
       avatarId,
       KarmaType: karmaType,
       karmaSourceType: 'Website',
@@ -40,8 +40,11 @@ module.exports = async function handler(req, res) {
       KarmaSourceDesc: `Awarded by SovereignTrust for: ${ACTION_TITLES[action]}`
     });
 
-    if (isError) {
-      return res.status(400).json({ error: message || 'Karma award failed.' });
+    console.log('[karma-award] avatarId:', avatarId, 'action:', action, 'karmaType:', karmaType);
+    console.log('[karma-award] OASIS response:', JSON.stringify(karmaRes));
+
+    if (karmaRes.isError) {
+      return res.status(400).json({ error: karmaRes.message || 'Karma award failed.', _debug: { avatarId, karmaType, raw: karmaRes.raw } });
     }
 
     return res.status(200).json({ success: true });
