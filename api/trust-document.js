@@ -192,6 +192,9 @@ async function handler(req, res) {
 
     const meta = holon.metaData || holon.MetaData || {};
     const status = meta.status || meta.Status || 'Draft';
+    console.log('[trust-document] meta keys:', Object.keys(meta));
+    console.log('[trust-document] meta.trustData len:', (meta.trustData || meta.TrustData || '').length);
+    console.log('[trust-document] holon keys:', Object.keys(holon).join(','));
 
     // Accept OASIS-stored 'Paid' status OR verify directly via Stripe session_id.
     let isPaid = status === 'Paid';
