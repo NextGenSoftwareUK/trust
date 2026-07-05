@@ -1,0 +1,57 @@
+SovereignTrust — Release Notes
+================================
+
+v1.2.0 — 5 July 2026
+-----------------------
+
+HOMEPAGE & MESSAGING
+
+• Hero headline rewritten — clearer, more compelling opening that speaks directly to the visitor
+• New "Why Sovereign Trust" section added — 8 cards answering the key questions: what it is, why it exists, who it's for, what problem it solves, what makes it different, and why you can trust it
+• Disclaimer rewritten — now clearly states what the platform does and directs users to seek professional advice where needed
+• Call to action updated from "Begin Your Trust" to "Begin Your Sovereign Trust"
+• "What's Included" grid completed — Auto-Save Draft and Instant Download cards added
+• WIP banner removed — site is now presented as live and complete
+
+LEELA AI — CONVERSATIONAL ONBOARDING
+
+• Leela now greets every new user with a short conversation before the builder opens
+• She asks 3 questions: what you want to protect, who should benefit, and what assets you plan to hold
+• Based on your answers she recommends the right trust structure
+• She then pre-fills the Trust Purpose field for you — highlighted in gold so you can see it immediately
+• Returning users and existing trusts skip straight to the builder
+
+DASHBOARD
+
+• Loading spinner added while your trust profiles are being fetched
+• Two new Coming Soon modules added: Deed of Variation and Beneficiary Notification
+
+DOWNLOADS
+
+• Word document (DOCX) download now available alongside the PDF
+• Both files contain the full trust deed — PDF for signing, DOCX for editing with your advisors
+
+GENERAL
+
+• Version number (v1.2.0) now shown in the bottom-right corner of every page
+
+
+v1.1.0 — 3-4 July 2026
+-----------------------
+
+LEELA AI — BACKEND INTEGRATION
+
+• Leela AI connected to the live OASIS Web6 backend — real AI responses now live
+• Fixed authentication so your session token is correctly passed to the AI on every request
+• Fixed a token issue that could cause responses to bleed between users
+• Resolved 401 errors that were blocking Leela from responding
+
+TRUST SAVE & LOAD
+
+• Fixed a bug where saving your trust was creating a duplicate instead of updating the existing one
+• Trust data now loads correctly when returning to an existing draft
+
+PAYMENT & DOCUMENT DOWNLOAD
+
+• Fixed an issue where the downloads page showed "unpaid" after a successful Stripe payment
+• PDF now generates and downloads correctly after payment is confirmed
