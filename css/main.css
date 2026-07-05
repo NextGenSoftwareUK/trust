@@ -709,6 +709,11 @@ textarea.field-input { min-height: 100px; resize: vertical; }
 
 /* ─── DASHBOARD ───────────────────────────────────────── */
 .dashboard-wrap { max-width: 1000px; margin: 0 auto; padding: 48px 32px; }
+.field-prefilled {
+  border-color: var(--gold) !important;
+  background: var(--gold-pale) !important;
+  transition: border-color 0.3s, background 0.3s;
+}
 .spinner {
   width: 18px; height: 18px;
   border: 2px solid var(--grey-light);
