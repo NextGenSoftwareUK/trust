@@ -99,9 +99,12 @@
     showTyping();
 
     try {
+      const session = (() => { try { return JSON.parse(localStorage.getItem('st_session') || 'null'); } catch { return null; } })();
+      const authHeaders = session?.token ? { Authorization: `Bearer ${session.token}` } : {};
+
       const res = await fetch('/api/leela-chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({ messages: history, context: _context }),
       });
 
