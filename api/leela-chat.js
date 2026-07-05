@@ -96,11 +96,8 @@ module.exports = async function handler(req, res) {
     const content   = r.result?.content ?? r.result?.Content ?? r.Result?.content ?? r.Result?.Content;
     const msg       = r.message   || r.Message   || r.detailedMessage || r.DetailedMessage;
 
-    console.error('[leela-chat] WEB6 raw response keys:', Object.keys(r));
-    console.error('[leela-chat] WEB6 result keys:', r.result ? Object.keys(r.result) : r.Result ? Object.keys(r.Result) : 'no result');
-
     if (isError || !content) {
-      console.error('[leela-chat] WEB6 error — isError:', isError, '| content:', content, '| msg:', msg);
+      console.error('[leela-chat] WEB6 error — isError:', isError, '| content:', content, '| msg:', msg, '| raw:', JSON.stringify(r.raw));
       throw new Error(msg || `WEB6 returned an empty completion response. Keys: ${JSON.stringify(Object.keys(r))}`);
     }
 
