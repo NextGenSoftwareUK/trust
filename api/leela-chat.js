@@ -17,6 +17,11 @@ function envBool(name, fallback) {
 const USE_FAHRN         = envBool('LEELA_USE_FAHRN',         cfg.useFahrn);
 const USE_HOLONIC_BRAID = envBool('LEELA_USE_HOLONIC_BRAID', cfg.useHolonicBraid);
 
+// WEB6_API_KEY: pre-shared secret for server-to-server auth (Vercel → Railway Web6).
+// Set as a Vercel environment variable. Web6 checks X-Web6-Api-Key BEFORE the JWT, so even
+// if the user's JWT is expired or absent the AI call still succeeds. Generate with:
+//   node -e "console.log(require('crypto').randomBytes(20).toString('hex'))"
+// and set the same value in Railway (WEB6_API_KEY) and Vercel (WEB6_API_KEY).
 const WEB6_API_KEY = process.env.WEB6_API_KEY || '';
 
 const LEELA_SYSTEM = `You are Leela, an expert trust document assistant for SovereignTrust — a platform that helps people create their own Express Private Trust deed.
