@@ -1,7 +1,6 @@
 'use strict';
 
 const { Web6Client } = require('@oasisomniverse/web6-api');
-const { getBearerToken } = require('./_oasis');
 const cfg = require('../config/leela');
 
 // ── Runtime config: env vars override code-level defaults in config/leela.js ──
@@ -17,7 +16,7 @@ function envBool(name, fallback) {
 const USE_FAHRN         = envBool('LEELA_USE_FAHRN',         cfg.useFahrn);
 const USE_HOLONIC_BRAID = envBool('LEELA_USE_HOLONIC_BRAID', cfg.useHolonicBraid);
 
-// Client is created per-request so each call gets its own token (avoids bleed between warm invocations).
+const WEB6_API_KEY = process.env.WEB6_API_KEY || '';
 
 const LEELA_SYSTEM = `You are Leela, an expert trust document assistant for SovereignTrust — a platform that helps people create their own Express Private Trust deed.
 
@@ -42,11 +41,16 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const token = getBearerToken(req);
-  if (!token) return res.status(401).json({ error: 'Not authenticated. Please sign in.' });
-
-  const web6 = new Web6Client({ baseUrl: WEB6_API, persistSession: false });
-  web6.setToken(token);
+  // Use a custom fetchImpl to inject the pre-shared API key header on every request.
+  // AuthorizeAttribute on the Web6 API accepts X-Web6-Api-Key as an alternative to JWT.
+  const web6 = new Web6Client({
+    baseUrl: WEB6_API,
+    persistSession: false,
+    fetchImpl: (url, init) => {
+      if (WEB6_API_KEY) init.headers['X-Web6-Api-Key'] = WEB6_API_KEY;
+      return fetch(url, init);
+    },
+  });
 
   const { messages, context, avatarId } = req.body || {};
 
