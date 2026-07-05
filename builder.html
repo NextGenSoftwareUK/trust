@@ -29,6 +29,24 @@
   </button>
 </nav>
 
+<!-- LEELA CONVERSATIONAL ONBOARDING -->
+<div class="leela-onboarding" id="leelaOnboarding">
+  <div class="leela-onboarding-inner">
+    <div class="leela-onboarding-header">
+      <div class="leela-onboarding-avatar">✨</div>
+      <div>
+        <div class="leela-onboarding-name">Leela</div>
+        <div class="leela-onboarding-sub">Sovereign Trust AI Assistant</div>
+      </div>
+    </div>
+    <div class="leela-onboarding-messages" id="onboardingMessages"></div>
+    <div class="leela-onboarding-choices" id="onboardingChoices"></div>
+    <div class="leela-onboarding-footer">
+      <a href="#" onclick="skipOnboarding(); return false;">Skip — take me straight to the builder</a>
+    </div>
+  </div>
+</div>
+
 <div class="builder-layout">
 
   <!-- SIDEBAR -->
@@ -642,6 +660,146 @@
     }
   }
 
+  // ── Leela Conversational Onboarding ─────────────────────
+  const onboardingAnswers = {};
+  let onboardingStep = 0;
+
+  const onboardingFlow = [
+    {
+      message: "Hello! I'm Leela, your Sovereign Trust assistant. Before we open the builder, I'd like to ask you three quick questions — this helps me recommend the right trust structure and pre-fill some details for you.",
+      choices: null
+    },
+    {
+      message: "What are you hoping to protect?",
+      key: "protect",
+      choices: ["Property & real estate", "Financial savings & investments", "Business interests", "Family wealth & heirlooms", "Digital assets", "A mix of different assets"]
+    },
+    {
+      message: "Who would you like your trust to benefit?",
+      key: "beneficiaries",
+      choices: ["My children", "My spouse or partner", "My wider family", "Myself", "A combination of people", "I'm not sure yet"]
+    },
+    {
+      message: "What kind of assets are you planning to place into the trust?",
+      key: "assets",
+      choices: ["Residential property", "Savings & bank accounts", "Business shares or interests", "Investments & securities", "A mix of asset types", "I'll decide later"]
+    }
+  ];
+
+  function addOnboardingBubble(text, role) {
+    const msgs = document.getElementById('onboardingMessages');
+    const b = document.createElement('div');
+    b.className = 'leela-bubble ' + role;
+    b.textContent = text;
+    msgs.appendChild(b);
+    msgs.scrollTop = msgs.scrollHeight;
+    return b;
+  }
+
+  function showTypingThenBubble(text, callback) {
+    const msgs = document.getElementById('onboardingMessages');
+    const t = document.createElement('div');
+    t.className = 'leela-typing';
+    t.innerHTML = '<span></span><span></span><span></span>';
+    msgs.appendChild(t);
+    msgs.scrollTop = msgs.scrollHeight;
+    setTimeout(() => {
+      t.remove();
+      addOnboardingBubble(text, 'leela');
+      if (callback) callback();
+    }, 900);
+  }
+
+  function renderOnboardingChoices(choices) {
+    const container = document.getElementById('onboardingChoices');
+    container.innerHTML = '';
+    choices.forEach(c => {
+      const btn = document.createElement('button');
+      btn.className = 'leela-choice';
+      btn.textContent = c;
+      btn.onclick = () => onboardingChoose(c);
+      container.appendChild(btn);
+    });
+  }
+
+  function buildRecommendation() {
+    const protect = onboardingAnswers.protect || '';
+    const bens    = onboardingAnswers.beneficiaries || '';
+    const assets  = onboardingAnswers.assets || '';
+
+    const benMap = {
+      "My children": "your children",
+      "My spouse or partner": "your spouse or partner",
+      "My wider family": "your wider family",
+      "Myself": "yourself",
+      "A combination of people": "your chosen beneficiaries",
+      "I'm not sure yet": "your chosen beneficiaries"
+    };
+    const benText = benMap[bens] || "your chosen beneficiaries";
+
+    const purposeText = `To hold, manage and protect ${assets.toLowerCase() === "i'll decide later" ? "assets to be settled" : assets.toLowerCase()} for the benefit of ${benText}, and to carry out the wishes of the Settlor in relation to the trust property as set out herein.`;
+
+    return { purposeText, benText, protect, assets };
+  }
+
+  function onboardingChoose(choice) {
+    const step = onboardingFlow[onboardingStep];
+    if (step.key) onboardingAnswers[step.key] = choice;
+
+    document.getElementById('onboardingChoices').innerHTML = '';
+    addOnboardingBubble(choice, 'user');
+
+    onboardingStep++;
+
+    if (onboardingStep < onboardingFlow.length) {
+      const next = onboardingFlow[onboardingStep];
+      showTypingThenBubble(next.message, () => {
+        if (next.choices) renderOnboardingChoices(next.choices);
+      });
+    } else {
+      // All questions answered — show recommendation
+      const rec = buildRecommendation();
+      const msg = `Perfect. Based on what you've told me, I recommend an Express Private Trust — well-suited for protecting ${rec.protect.toLowerCase()} for ${rec.benText}. I've pre-filled your trust purpose to get you started. You can edit anything in the builder.`;
+      showTypingThenBubble(msg, () => {
+        const container = document.getElementById('onboardingChoices');
+        container.style.paddingTop = '4px';
+        const btn = document.createElement('button');
+        btn.className = 'leela-onboarding-begin';
+        btn.textContent = 'Begin Building My Trust →';
+        btn.onclick = () => launchBuilderFromOnboarding(rec.purposeText);
+        container.appendChild(btn);
+      });
+    }
+  }
+
+  function launchBuilderFromOnboarding(purposeText) {
+    const overlay = document.getElementById('leelaOnboarding');
+    overlay.classList.add('hidden');
+    setTimeout(() => { overlay.style.display = 'none'; }, 420);
+    if (purposeText && document.getElementById('f-purpose')) {
+      document.getElementById('f-purpose').value = purposeText;
+      scheduleAutosave();
+    }
+  }
+
+  function skipOnboarding() {
+    const overlay = document.getElementById('leelaOnboarding');
+    overlay.classList.add('hidden');
+    setTimeout(() => { overlay.style.display = 'none'; }, 420);
+  }
+
+  function initOnboarding() {
+    // Show onboarding only for new trusts (no id in URL)
+    if (trustId) { skipOnboarding(); return; }
+    onboardingStep = 0;
+    showTypingThenBubble(onboardingFlow[0].message, () => {
+      onboardingStep = 1;
+      showTypingThenBubble(onboardingFlow[1].message, () => {
+        renderOnboardingChoices(onboardingFlow[1].choices);
+      });
+    });
+  }
+
   document.querySelectorAll('.builder-main').forEach(el => el.addEventListener('input', scheduleAutosave));
 
   (async function init() {
@@ -654,6 +812,7 @@
         console.error('[builder init]', err);
       }
     }
+    initOnboarding();
   })();
 </script>
 </body>
