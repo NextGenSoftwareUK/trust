@@ -54,6 +54,17 @@
     <button class="btn-download" id="pdfDownloadBtn">Download →</button>
   </div>
 
+  <div class="download-card" id="docxCard" style="display:none;">
+    <div class="download-info">
+      <div class="download-file-icon docx-icon">DOC</div>
+      <div>
+        <div class="download-name">Express Private Trust Deed — Editable</div>
+        <div class="download-meta" id="docxMeta">Trust_Deed.docx</div>
+      </div>
+    </div>
+    <button class="btn-download" id="docxDownloadBtn">Download →</button>
+  </div>
+
   <div style="background:var(--cream-dark); border:1px solid var(--grey-light); border-radius:var(--radius-lg); padding:24px 28px; margin-top:32px;">
     <h3 style="font-size:16px; color:var(--navy); margin-bottom:8px;">Important Next Steps</h3>
     <p style="font-size:14px; color:var(--text-mid); line-height:1.8; font-weight:300;">These documents are templates prepared from the information you provided. Before signing or acting upon these documents, you should: (1) have them reviewed by a qualified legal professional in your jurisdiction, (2) ensure proper execution in accordance with local legal requirements, and (3) obtain independent legal, tax, and financial advice.</p>
@@ -107,22 +118,32 @@
     document.getElementById('statusBanner').style.display = 'flex';
   }
 
-  function showPdfCard(trust) {
+  function showDocumentCards(trust) {
     const name = trust.name || trust.data?.overview?.name || 'Trust_Deed';
-    document.getElementById('pdfMeta').textContent = `${name.replace(/[^a-z0-9]+/gi, '_')}_Deed.pdf`;
+    const slug = name.replace(/[^a-z0-9]+/gi, '_');
+
+    // PDF card
+    document.getElementById('pdfMeta').textContent = `${slug}_Deed.pdf`;
     document.getElementById('pdfCard').style.display = 'flex';
     document.getElementById('pdfDownloadBtn').onclick = async () => {
       const btn = document.getElementById('pdfDownloadBtn');
-      btn.disabled = true;
-      btn.textContent = 'Preparing…';
+      btn.disabled = true; btn.textContent = 'Preparing…';
       try {
-        await downloadTrustDocument(trustId, `${name.replace(/[^a-z0-9]+/gi, '_')}_Deed.pdf`, stripeSessionId);
-      } catch (err) {
-        showError(err.message);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Download →';
-      }
+        await downloadTrustDocument(trustId, `${slug}_Deed.pdf`, stripeSessionId, 'pdf');
+      } catch (err) { showError(err.message); }
+      finally { btn.disabled = false; btn.textContent = 'Download →'; }
+    };
+
+    // DOCX card
+    document.getElementById('docxMeta').textContent = `${slug}_Deed.docx`;
+    document.getElementById('docxCard').style.display = 'flex';
+    document.getElementById('docxDownloadBtn').onclick = async () => {
+      const btn = document.getElementById('docxDownloadBtn');
+      btn.disabled = true; btn.textContent = 'Preparing…';
+      try {
+        await downloadTrustDocument(trustId, `${slug}_Deed.docx`, stripeSessionId, 'docx');
+      } catch (err) { showError(err.message); }
+      finally { btn.disabled = false; btn.textContent = 'Download →'; }
     };
   }
 
@@ -156,8 +177,8 @@
       document.getElementById('trustSubtitle').textContent = `${trust.name || 'Untitled Trust'} · ${trust.status === 'Paid' ? 'Paid' : trust.status}`;
 
       if (trust.status === 'Paid') {
-        showStatus('Payment Confirmed', 'Your document has been generated and is ready to download.');
-        showPdfCard(trust);
+        showStatus('Payment Confirmed', 'Your documents have been generated and are ready to download.');
+        showDocumentCards(trust);
       } else {
         showError('This trust has not been paid for yet. Please complete checkout to unlock your documents.');
       }
