@@ -73,12 +73,12 @@ async function checkCheckoutStatus(stripeSessionId) {
 }
 
 /** Fetches the generated trust deed PDF (auth'd binary download) and triggers a browser save. */
-async function downloadTrustDocument(id, filename, stripeSessionId) {
+async function downloadTrustDocument(id, filename, stripeSessionId, format = 'pdf') {
   const session = getSession();
   if (!session?.token) throw new Error('Not signed in.');
 
   const sessionParam = stripeSessionId ? `&session_id=${encodeURIComponent(stripeSessionId)}` : '';
-  const res = await fetch(`/api/trust-document?id=${encodeURIComponent(id)}&avatarId=${encodeURIComponent(session.avatarId)}${sessionParam}`, {
+  const res = await fetch(`/api/trust-document?id=${encodeURIComponent(id)}&avatarId=${encodeURIComponent(session.avatarId)}&format=${encodeURIComponent(format)}${sessionParam}`, {
     headers: { Authorization: `Bearer ${session.token}` }
   });
 
