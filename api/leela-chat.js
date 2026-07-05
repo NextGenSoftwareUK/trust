@@ -1,6 +1,7 @@
 'use strict';
 
 const { Web6Client } = require('@oasisomniverse/web6-api');
+const { getBearerToken } = require('./_oasis');
 const cfg = require('../config/leela');
 
 // ── Runtime config: env vars override code-level defaults in config/leela.js ──
@@ -41,13 +42,15 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  // Use a custom fetchImpl to inject the pre-shared API key header on every request.
-  // AuthorizeAttribute on the Web6 API accepts X-Web6-Api-Key as an alternative to JWT.
+  // Forward the user's OASIS JWT and optionally the pre-shared API key.
+  // AuthorizeAttribute accepts either: API key (X-Web6-Api-Key) or a valid JWT (Authorization: Bearer).
+  const userToken = getBearerToken(req);
   const web6 = new Web6Client({
     baseUrl: WEB6_API,
     persistSession: false,
     fetchImpl: (url, init) => {
       if (WEB6_API_KEY) init.headers['X-Web6-Api-Key'] = WEB6_API_KEY;
+      if (userToken) init.headers['Authorization'] = `Bearer ${userToken}`;
       return fetch(url, init);
     },
   });
