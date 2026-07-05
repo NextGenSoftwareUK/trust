@@ -2,7 +2,7 @@
 
 ---
 
-## v1.1.0 — 5 July 2026
+## v1.2.0 — 5 July 2026
 
 ### Homepage & Messaging
 
@@ -36,11 +36,11 @@
 
 ### Version
 
-- Version badge `v1.1.0` added to site footer
+- Version badge `v1.2.0` added to all pages
 
 ---
 
-## v1.0.0 — 3–4 July 2026
+## v1.1.0 — 3–4 July 2026
 
 ### Leela AI Integration
 

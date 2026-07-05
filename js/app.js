@@ -1,5 +1,5 @@
 // ─── Version badge ────────────────────────────────────────
-const SITE_VERSION = 'v1.1.0';
+const SITE_VERSION = 'v1.2.0';
 
 (function injectVersionBadge() {
   const badge = document.createElement('div');
