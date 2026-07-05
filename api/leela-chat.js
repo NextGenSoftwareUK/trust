@@ -1,6 +1,7 @@
 'use strict';
 
 const { Web6Client } = require('@oasisomniverse/web6-api');
+const { getBearerToken } = require('./_oasis');
 const cfg = require('../config/leela');
 
 // ── Runtime config: env vars override code-level defaults in config/leela.js ──
@@ -16,8 +17,7 @@ function envBool(name, fallback) {
 const USE_FAHRN         = envBool('LEELA_USE_FAHRN',         cfg.useFahrn);
 const USE_HOLONIC_BRAID = envBool('LEELA_USE_HOLONIC_BRAID', cfg.useHolonicBraid);
 
-// Single shared client — stateless, no session persistence needed in serverless.
-const web6 = new Web6Client({ baseUrl: WEB6_API, persistSession: false });
+// Client is created per-request so each call gets its own token (avoids bleed between warm invocations).
 
 const LEELA_SYSTEM = `You are Leela, an expert trust document assistant for SovereignTrust — a platform that helps people create their own Express Private Trust deed.
 
@@ -41,6 +41,12 @@ module.exports = async function handler(req, res) {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
+
+  const token = getBearerToken(req);
+  if (!token) return res.status(401).json({ error: 'Not authenticated. Please sign in.' });
+
+  const web6 = new Web6Client({ baseUrl: WEB6_API, persistSession: false });
+  web6.setToken(token);
 
   const { messages, context, avatarId } = req.body || {};
 
