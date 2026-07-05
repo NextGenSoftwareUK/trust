@@ -1,4 +1,5 @@
 const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
+const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, BorderStyle, Table, TableRow, TableCell, WidthType } = require('docx');
 const { getBearerToken, createClient } = require('./_oasis');
 
 const PAGE_WIDTH = 595.28; // A4
@@ -154,6 +155,118 @@ async function buildTrustDeedPdf(data, trustName) {
   return doc.save();
 }
 
+async function buildTrustDeedDocx(data, trustName) {
+  const overview     = data.overview     || {};
+  const settlor      = data.settlor      || {};
+  const protector    = data.protector    || {};
+  const signing      = data.signing      || {};
+  const trustees     = (data.trustees     || []).filter(t => t.name);
+  const beneficiaries= (data.beneficiaries|| []).filter(b => b.name);
+
+  const heading = (text, level = HeadingLevel.HEADING_2) =>
+    new Paragraph({ text, heading: level, spacing: { before: 300, after: 100 } });
+
+  const body = (text) =>
+    new Paragraph({ children: [new TextRun({ text: text || '—', size: 22 })], spacing: { after: 80 } });
+
+  const field = (label, value) =>
+    new Paragraph({
+      children: [
+        new TextRun({ text: `${label}: `, bold: true, size: 22 }),
+        new TextRun({ text: value || '—', size: 22 }),
+      ],
+      spacing: { after: 80 },
+    });
+
+  const disclaimer = 'This document has been generated using SovereignTrust.net for educational and administrative document preparation purposes only. Before signing or acting upon this document, you should have it reviewed by a qualified legal professional in your jurisdiction, ensure proper execution in accordance with local legal requirements, and obtain independent legal, tax, and financial advice.';
+
+  const children = [
+    new Paragraph({
+      children: [new TextRun({ text: 'EXPRESS PRIVATE TRUST DEED', bold: true, size: 48, color: '0F2244' })],
+      heading: HeadingLevel.TITLE,
+      spacing: { after: 100 },
+    }),
+    new Paragraph({
+      children: [new TextRun({ text: trustName || 'Untitled Trust', italics: true, size: 28, color: '595959' })],
+      spacing: { after: 80 },
+    }),
+    new Paragraph({
+      children: [new TextRun({ text: 'Prepared using SovereignTrust.net — educational and administrative document preparation only. This document is a template and does not constitute legal advice.', italics: true, size: 16, color: '888888' })],
+      spacing: { after: 400 },
+    }),
+
+    heading('1. Trust Identification'),
+    field('Trust Name', overview.name),
+    field('Date of Deed', overview.creationDate),
+    field('Governing Jurisdiction', overview.jurisdiction),
+    field('Initial Trust Property', overview.initialProperty),
+
+    heading('2. Trust Purpose'),
+    body(overview.purpose || 'To hold, manage and distribute the trust assets for the benefit of the named beneficiaries in accordance with the terms set out herein and any Memorandum of Wishes provided by the Settlor from time to time.'),
+
+    heading('3. The Settlor'),
+    field('Name', settlor.name),
+    field('Address', settlor.address),
+    field('Email', settlor.email),
+    field('Phone', settlor.phone),
+
+    heading('4. The Trustee(s)'),
+    ...(trustees.length
+      ? trustees.flatMap((t, i) => [
+          new Paragraph({ children: [new TextRun({ text: `Trustee ${i + 1}: ${t.name}`, bold: true, size: 22 })], spacing: { after: 60 } }),
+          ...(t.address ? [field('Address', t.address)] : []),
+          ...(t.email   ? [field('Email',   t.email)]   : []),
+          ...(t.phone   ? [field('Phone',   t.phone)]   : []),
+          new Paragraph({ text: '', spacing: { after: 100 } }),
+        ])
+      : [new Paragraph({ children: [new TextRun({ text: 'No trustees have been appointed.', italics: true, size: 22, color: '888888' })] })]),
+
+    heading('5. The Beneficiaries'),
+    ...(beneficiaries.length
+      ? beneficiaries.flatMap((b, i) => [
+          new Paragraph({ children: [new TextRun({ text: `Beneficiary ${i + 1}: ${b.name}${b.relationship ? ` (${b.relationship})` : ''}`, bold: true, size: 22 })], spacing: { after: 60 } }),
+          ...(b.address ? [field('Address', b.address)] : []),
+          ...(b.type    ? [field('Type',    b.type)]    : []),
+          new Paragraph({ text: '', spacing: { after: 100 } }),
+        ])
+      : [new Paragraph({ children: [new TextRun({ text: 'No beneficiaries have been named.', italics: true, size: 22, color: '888888' })] })]),
+
+    heading('6. The Protector'),
+    ...(protector.name
+      ? [field('Name', protector.name), field('Address', protector.address), field('Email', protector.email)]
+      : [new Paragraph({ children: [new TextRun({ text: 'No Protector has been appointed for this trust.', italics: true, size: 22, color: '888888' })] })]),
+
+    heading('7. Execution'),
+    field('Place of Signing', signing.place),
+    body('IN WITNESS WHEREOF the Settlor and Trustee(s) have executed this Deed on the date first written above, in the presence of the witnesses named below.'),
+    new Paragraph({ text: '', spacing: { after: 200 } }),
+    new Paragraph({ children: [new TextRun({ text: `Witness 1: ${signing.witness1?.name || '—'}`, bold: true, size: 22 })], spacing: { after: 60 } }),
+    ...(signing.witness1?.address ? [field('Address', signing.witness1.address)] : []),
+    new Paragraph({ text: '', spacing: { after: 120 } }),
+    new Paragraph({ children: [new TextRun({ text: `Witness 2: ${signing.witness2?.name || '—'}`, bold: true, size: 22 })], spacing: { after: 60 } }),
+    ...(signing.witness2?.address ? [field('Address', signing.witness2.address)] : []),
+    new Paragraph({ text: '', spacing: { after: 400 } }),
+
+    new Paragraph({
+      children: [new TextRun({ text: disclaimer, italics: true, size: 16, color: '888888' })],
+      spacing: { after: 200 },
+    }),
+  ];
+
+  const doc = new Document({
+    sections: [{ properties: {}, children }],
+    styles: {
+      paragraphStyles: [{
+        id: 'Normal',
+        name: 'Normal',
+        run: { font: 'Georgia', size: 22 },
+      }],
+    },
+  });
+
+  return Packer.toBuffer(doc);
+}
+
 async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -164,7 +277,8 @@ async function handler(req, res) {
     return res.status(401).json({ error: 'Missing or invalid Authorization header.' });
   }
 
-  const { id, avatarId, session_id } = req.query || {};
+  const { id, avatarId, session_id, format } = req.query || {};
+  const isDocx = format === 'docx';
   if (!id || !avatarId) {
     return res.status(400).json({ error: 'id and avatarId are required.' });
   }
@@ -203,10 +317,16 @@ async function handler(req, res) {
     try { trustData = JSON.parse(meta.trustData || '{}'); } catch {}
 
     const trustName = holon.name || trustData.overview?.name || 'Trust Deed';
+    const safeName  = trustName.replace(/[^a-z0-9]+/gi, '_').replace(/^_+|_+$/g, '') || 'Trust_Deed';
+
+    if (isDocx) {
+      const docxBuffer = await buildTrustDeedDocx(trustData, trustName);
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+      res.setHeader('Content-Disposition', `attachment; filename="${safeName}_Deed.docx"`);
+      return res.status(200).send(docxBuffer);
+    }
+
     const pdfBytes = await buildTrustDeedPdf(trustData, trustName);
-
-    const safeName = trustName.replace(/[^a-z0-9]+/gi, '_').replace(/^_+|_+$/g, '') || 'Trust_Deed';
-
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${safeName}_Deed.pdf"`);
     return res.status(200).send(Buffer.from(pdfBytes));
