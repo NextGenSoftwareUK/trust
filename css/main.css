@@ -709,6 +709,15 @@ textarea.field-input { min-height: 100px; resize: vertical; }
 
 /* ─── DASHBOARD ───────────────────────────────────────── */
 .dashboard-wrap { max-width: 1000px; margin: 0 auto; padding: 48px 32px; }
+.spinner {
+  width: 18px; height: 18px;
+  border: 2px solid var(--grey-light);
+  border-top-color: var(--navy);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 .dashboard-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 40px; gap: 16px; }
 .dashboard-header h1 { font-size: 32px; color: var(--navy); }
 .dashboard-header p { font-size: 15px; color: var(--text-muted); margin-top: 4px; font-weight: 300; }

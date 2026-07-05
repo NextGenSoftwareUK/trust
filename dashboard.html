@@ -40,6 +40,10 @@
 
   <div style="margin-bottom:12px; font-size:12px; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); font-weight:500;">Your Trust Profiles</div>
 
+  <div id="trustsLoading" style="display:flex; align-items:center; gap:12px; padding:28px 0; color:var(--text-muted); font-size:14px; font-weight:300;">
+    <div class="spinner"></div>
+    Loading your trust profiles…
+  </div>
   <div id="trustsList"></div>
   <div id="trustsEmpty" style="display:none; padding:32px; text-align:center; color:var(--text-muted); font-weight:300;">You haven't created any trust profiles yet.</div>
 
@@ -178,10 +182,12 @@
   }
 
   (async function loadTrusts() {
-    const listEl = document.getElementById('trustsList');
-    const emptyEl = document.getElementById('trustsEmpty');
+    const listEl    = document.getElementById('trustsList');
+    const emptyEl   = document.getElementById('trustsEmpty');
+    const loadingEl = document.getElementById('trustsLoading');
     try {
       const trusts = await listTrusts();
+      loadingEl.style.display = 'none';
       if (!trusts.length) {
         emptyEl.style.display = 'block';
         return;
@@ -189,6 +195,7 @@
       trusts.forEach(trust => listEl.appendChild(renderTrustCard(trust)));
     } catch (err) {
       console.error('[dashboard]', err);
+      loadingEl.style.display = 'none';
       emptyEl.textContent = 'Could not load your trust profiles. Please refresh to try again.';
       emptyEl.style.display = 'block';
     }
