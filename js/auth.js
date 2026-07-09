@@ -57,6 +57,29 @@ function updateNav() {
   // Not signed in: keep static HTML from the page (Education / Sign in / Create Account)
 }
 
+// ─── Token expiry check ───────────────────────────────
+function jwtExpiresAt(token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    return payload.exp ? payload.exp * 1000 : null;
+  } catch { return null; }
+}
+
+// Returns true if the token is expired or expires within the next 60 seconds.
+function tokenNeedsRefresh(token) {
+  const exp = jwtExpiresAt(token);
+  return exp === null || Date.now() >= exp - 60_000;
+}
+
+// Ensures the session token is fresh before making an API call.
+// Returns the current token, or null if refresh failed (caller should logout).
+async function ensureFreshToken() {
+  const session = getSession();
+  if (!session?.token) return null;
+  if (!tokenNeedsRefresh(session.token)) return session.token;
+  return refreshSession();
+}
+
 // ─── Token refresh ────────────────────────────────────
 // Returns the new JWT token string, or null if refresh failed (caller should logout).
 async function refreshSession() {
