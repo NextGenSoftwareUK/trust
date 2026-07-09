@@ -32,7 +32,11 @@ module.exports = async function handler(req, res) {
 
     try {
       const oasis = createClient();
-      const result = await oasis.avatar.resetPassword({ token, password, confirmPassword: confirmPassword || password });
+      const result = await oasis.avatar.resetPassword({
+        token,
+        newPassword: password,
+        confirmNewPassword: confirmPassword || password
+      });
 
       if (result?.isError) {
         return res.status(400).json({ error: result.message || 'Password reset failed. The link may have expired.' });
