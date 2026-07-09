@@ -1,6 +1,14 @@
 # SovereignTrust
 
-A web application for creating, managing, and downloading express private trust documents, built on the [OASIS WEB4 API](https://github.com/NextGenSoftwareUK/OASIS) for avatar authentication, holon data storage, and karma rewards.
+Private trusts have long been a tool available only to the wealthy — requiring expensive solicitors, opaque processes, and weeks of back-and-forth. SovereignTrust changes that.
+
+SovereignTrust is a guided web platform that allows everyday people — with no legal background — to create their own express private trust documentation in a single session. It walks users through every concept and field in plain English, powered by **Leela**, an AI assistant built on the OASIS WEB6 API, so users understand what they're creating rather than just what they're signing.
+
+Users can safeguard assets, provide for loved ones, define their legacy, and download a completed trust deed as a PDF or Word document — all without a solicitor appointment. Documents are stored securely against the user's OASIS avatar and are never shared or monetised.
+
+> Educational and administrative document preparation only. Does not constitute legal, tax, or financial advice.
+
+Built on the [OASIS WEB4 API](https://github.com/NextGenSoftwareUK/OASIS) for avatar authentication, holon data storage, and karma rewards.
 
 ---
 
