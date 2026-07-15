@@ -15,9 +15,9 @@ module.exports = {
   web6ApiUrl: 'https://api.web6.oasisomniverse.one',
 
   // AI provider and model for standard completions.
-  // "openai" routes to GPT-4o. Set to "auto" to let WEB6 pick based on routing priority.
-  provider: 'openai',
-  model: 'gpt-4o',
+  // "LeelaAI" routes to the Leela AI Lambda endpoint via WEB6.
+  provider: 'LeelaAI',
+  model: 'leela',
 
   // FAHRN — Fractal Adaptive Holonic Reasoning Network.
   // When true, each Leela message is first dispatched through the FAHRN reasoning
