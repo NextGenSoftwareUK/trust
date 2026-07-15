@@ -1,4 +1,4 @@
-# SovereignTrust
+# Sovereign Trust
 
 Private trusts have long been a tool available only to the wealthy — requiring expensive solicitors, opaque processes, and weeks of back-and-forth. SovereignTrust changes that.
 
