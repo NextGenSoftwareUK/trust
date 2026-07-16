@@ -50,6 +50,7 @@ function updateNav() {
     navLinks.innerHTML = `
       <a class="nav-link" href="/education.html">Education</a>
       <a class="nav-link" href="/dashboard.html">Dashboard</a>
+      <a class="nav-link" href="/settings.html">Settings</a>
       <span class="nav-link nav-greeting">Hi, ${name}</span>
       <button class="nav-cta nav-cta--ghost" onclick="authLogout()">Sign Out</button>
     `;
