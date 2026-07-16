@@ -102,12 +102,15 @@
       const session = (() => { try { return JSON.parse(localStorage.getItem('st_session') || 'null'); } catch { return null; } })();
       const authHeaders = session?.token ? { Authorization: `Bearer ${session.token}` } : {};
 
-      const provider = (() => { try { return localStorage.getItem('st_ai_provider') || 'leelaai'; } catch { return 'leelaai'; } })();
+      const provider    = (() => { try { return localStorage.getItem('st_ai_provider')      || 'leelaai'; } catch { return 'leelaai'; } })();
+      const useWeb6     = (() => { try { return localStorage.getItem('st_use_web6')          === 'true';   } catch { return false; } })();
+      const useFahrn    = (() => { try { return localStorage.getItem('st_use_fahrn')         === 'true';   } catch { return false; } })();
+      const useBraid    = (() => { try { return localStorage.getItem('st_use_holonic_braid') === 'true';   } catch { return false; } })();
 
       const res = await fetch('/api/leela-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
-        body: JSON.stringify({ messages: history, context: _context, provider }),
+        body: JSON.stringify({ messages: history, context: _context, provider, useWeb6, useFahrn, useHolonicBraid: useBraid }),
       });
 
       hideTyping();
