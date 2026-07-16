@@ -144,11 +144,10 @@
 
     if (!area) return; // page doesn't have the Leela panel
 
-    // Initial greeting.
+    // Initial greeting — displayed only, not sent to the AI (it's a canned UI string, not an API response).
     const greeting = area.dataset.greeting ||
       "Hello! I'm Leela, your trust document assistant. I can explain trust concepts, guide you through each step of the builder, and help clarify any terminology. What would you like to know?";
     appendMessage('assistant', greeting);
-    history.push({ role: 'assistant', content: greeting });
 
     // Initial suggestion buttons (passed via data-suggestions JSON on the area element).
     try {
