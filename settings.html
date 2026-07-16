@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings — SovereignTrust</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/main.css">
+<script src="/js/auth.js"></script>
+<script>requireAuth();</script>
+<style>
+.settings-wrap {
+  max-width: 680px;
+  margin: 48px auto 80px;
+  padding: 0 24px;
+}
+.settings-section {
+  background: var(--white);
+  border: 1px solid var(--grey-light);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+}
+.settings-section h2 {
+  font-size: 20px;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+.settings-section .section-desc {
+  font-size: 14px;
+  color: var(--text-muted);
+  font-weight: 300;
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+.provider-grid {
+  display: grid;
+  gap: 12px;
+}
+.provider-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 18px 20px;
+  border: 2px solid var(--grey-light);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s;
+  background: var(--cream);
+  position: relative;
+}
+.provider-card:hover { border-color: var(--navy-light); }
+.provider-card.selected {
+  border-color: var(--navy);
+  background: var(--navy-pale);
+}
+.provider-card input[type="radio"] {
+  margin-top: 3px;
+  accent-color: var(--navy);
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+.provider-info { flex: 1; min-width: 0; }
+.provider-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--navy);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.provider-badge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 99px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.badge-default { background: var(--gold-pale); color: var(--gold); }
+.badge-fast    { background: #E8F5E9; color: #2D6A4F; }
+.badge-powerful{ background: var(--navy-pale); color: var(--navy); }
+.provider-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  font-weight: 300;
+  line-height: 1.5;
+}
+.settings-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 28px;
+  flex-wrap: wrap;
+}
+.btn-save {
+  background: var(--navy);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 12px 28px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.btn-save:hover { background: var(--navy-light); }
+.save-confirm {
+  font-size: 13px;
+  color: var(--success);
+  font-weight: 500;
+  display: none;
+}
+.save-confirm.show { display: inline; }
+.settings-header {
+  margin-bottom: 32px;
+}
+.settings-header h1 {
+  font-size: 28px;
+  color: var(--navy);
+  margin-bottom: 8px;
+}
+.settings-header p {
+  font-size: 15px;
+  color: var(--text-muted);
+  font-weight: 300;
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">
+    <div class="nav-logo-mark">S</div>
+    <div class="nav-logo-text">Sovereign Trust</div>
+  </a>
+  <div class="nav-links" id="navLinks">
+    <a class="nav-link" href="/education.html">Education</a>
+    <a class="nav-link" href="/dashboard.html">Dashboard</a>
+    <a class="nav-link active" href="/settings.html">Settings</a>
+    <a class="nav-link" href="/login.html">Sign in</a>
+    <a class="nav-cta" href="/register.html">Create Account</a>
+  </div>
+  <button class="nav-hamburger" onclick="toggleMobileMenu()" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="settings-wrap">
+  <div class="settings-header">
+    <h1>Settings</h1>
+    <p>Manage your account preferences and assistant configuration.</p>
+  </div>
+
+  <!-- AI ASSISTANT -->
+  <div class="settings-section">
+    <h2>AI Assistant</h2>
+    <p class="section-desc">
+      Choose which AI powers the Leela chat assistant. Leela AI is the default — it uses
+      Leela's own trust-knowledge library and provides citations from its source documents.
+      Other providers use your WEB6 account and are subject to standard rate limits.
+    </p>
+
+    <div class="provider-grid" id="providerGrid">
+
+      <label class="provider-card" data-provider="leelaai">
+        <input type="radio" name="provider" value="leelaai">
+        <div class="provider-info">
+          <div class="provider-name">
+            ✨ Leela AI
+            <span class="provider-badge badge-default">Default</span>
+          </div>
+          <div class="provider-desc">
+            Leela's spiritual intelligence model, grounded in its own trust-document knowledge base.
+            Responses include citations from the source library. Best for trust-specific guidance.
+          </div>
+        </div>
+      </label>
+
+      <label class="provider-card" data-provider="openai">
+        <input type="radio" name="provider" value="openai">
+        <div class="provider-info">
+          <div class="provider-name">
+            🤖 OpenAI — GPT-4o
+            <span class="provider-badge badge-powerful">Powerful</span>
+          </div>
+          <div class="provider-desc">
+            OpenAI's flagship model via the WEB6 OASIS API. Strong general reasoning and
+            language quality. Routed through your WEB6 account.
+          </div>
+        </div>
+      </label>
+
+      <label class="provider-card" data-provider="anthropic">
+        <input type="radio" name="provider" value="anthropic">
+        <div class="provider-info">
+          <div class="provider-name">
+            🧠 Anthropic — Claude Sonnet
+            <span class="provider-badge badge-powerful">Powerful</span>
+          </div>
+          <div class="provider-desc">
+            Anthropic's Claude Sonnet model via WEB6. Excellent at following nuanced
+            instructions and producing well-structured explanations.
+          </div>
+        </div>
+      </label>
+
+      <label class="provider-card" data-provider="groq">
+        <input type="radio" name="provider" value="groq">
+        <div class="provider-info">
+          <div class="provider-name">
+            ⚡ Groq — Llama 3.3 70B
+            <span class="provider-badge badge-fast">Fast</span>
+          </div>
+          <div class="provider-desc">
+            Llama 3.3 70B served on Groq's LPU hardware via WEB6. Significantly faster
+            response times. Good for quick questions.
+          </div>
+        </div>
+      </label>
+
+    </div>
+
+    <div class="settings-actions">
+      <button class="btn-save" onclick="saveSettings()">Save preferences</button>
+      <span class="save-confirm" id="saveConfirm">✓ Saved</span>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+(function () {
+  const PROVIDER_KEY = 'st_ai_provider';
+
+  // Load saved value.
+  const saved = (() => { try { return localStorage.getItem(PROVIDER_KEY) || 'leelaai'; } catch { return 'leelaai'; } })();
+
+  // Reflect in UI.
+  const cards = document.querySelectorAll('.provider-card');
+  cards.forEach(card => {
+    const input = card.querySelector('input[type="radio"]');
+    if (card.dataset.provider === saved) {
+      input.checked = true;
+      card.classList.add('selected');
+    }
+    input.addEventListener('change', () => {
+      cards.forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+    });
+  });
+
+  window.saveSettings = function () {
+    const checked = document.querySelector('input[name="provider"]:checked');
+    if (!checked) return;
+    try { localStorage.setItem(PROVIDER_KEY, checked.value); } catch {}
+    const confirm = document.getElementById('saveConfirm');
+    confirm.classList.add('show');
+    setTimeout(() => confirm.classList.remove('show'), 2500);
+  };
+})();
+</script>
+
+</body>
+</html>

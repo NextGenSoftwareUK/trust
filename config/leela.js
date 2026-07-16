@@ -19,21 +19,10 @@ module.exports = {
   provider: 'LeelaAI',
   model: 'leela',
 
-  // FAHRN — Fractal Adaptive Holonic Reasoning Network.
-  // When true, each Leela message is first dispatched through the FAHRN reasoning
-  // network (POST /v1/reasoning-network/dispatch, TaskType: "trust-guidance") to
-  // produce a structured Mermaid execution plan. That plan is injected into the system
-  // context before the final completion call, improving multi-step reasoning quality.
-  // Trade-off: adds roughly 1–3 s of extra latency per message.
-  useFahrn: true,
-
-  // Holonic BRAID shared reasoning graph.
-  // When true, Leela fetches the global shared reasoning graph for the "trust-guidance"
-  // task type (GET /v1/holonic-braid/graph/trust-guidance) before each completion and
-  // injects it as system context. Reasoning patterns are therefore shared and compound
-  // across all users and sessions — the more it is used, the better it gets.
-  // Falls back silently if no graph has been seeded yet.
-  useHolonicBraid: true,
+  // FAHRN and Holonic BRAID are disabled for LeelaAI — Leela's own RAG (leela_citations)
+  // handles knowledge retrieval natively. Enable only when routing through a WEB6 provider.
+  useFahrn: false,
+  useHolonicBraid: false,
 
   // Route through OpenServ gateway instead of calling the provider API directly.
   // null = use OASIS_DNA.Web6.PreferOpenServ default (recommended for production).
