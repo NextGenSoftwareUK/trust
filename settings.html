@@ -10,6 +10,76 @@
 <script src="/js/auth.js"></script>
 <script>requireAuth();</script>
 <style>
+/* ── Toggle switch ──────────────────────────────────── */
+.toggle-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--grey-light);
+}
+.toggle-row:last-child { border-bottom: none; }
+.toggle-info { flex: 1; min-width: 0; }
+.toggle-label {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--navy);
+  margin-bottom: 3px;
+}
+.toggle-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 300;
+  line-height: 1.5;
+}
+.toggle-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 44px;
+  height: 24px;
+  margin-top: 2px;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--grey-light);
+  border-radius: 99px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+.toggle-switch input:checked + .toggle-slider { background: var(--navy); }
+.toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
+.toggle-row.disabled { opacity: 0.45; pointer-events: none; }
+.advanced-section {
+  margin-top: 12px;
+  padding: 20px;
+  background: var(--cream);
+  border: 1px solid var(--grey-light);
+  border-radius: var(--radius-md);
+}
+.advanced-section-title {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+/* ── Main settings layout ───────────────────────────── */
 .settings-wrap {
   max-width: 680px;
   margin: 48px auto 80px;
@@ -232,21 +302,90 @@
       <span class="save-confirm" id="saveConfirm">✓ Saved</span>
     </div>
   </div>
+
+  <!-- WEB6 / ADVANCED -->
+  <div class="settings-section">
+    <h2>WEB6 & Advanced Features</h2>
+    <p class="section-desc">
+      Control how Leela routes requests and which advanced OASIS reasoning features are active.
+      WEB6 routing sends requests through the OASIS WEB6 API layer — required for FAHRN and Holonic Braid.
+      Direct mode calls the selected provider's API without the WEB6 layer (faster for Leela AI).
+    </p>
+
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <div class="toggle-label">Route through WEB6</div>
+        <div class="toggle-desc">
+          When on, all provider requests are sent through the OASIS WEB6 API — enabling avatar context,
+          semantic caching, and the features below. When off, Leela AI is called directly (other providers
+          still use WEB6 as they have no direct key configured here).
+        </div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggleWeb6">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="advanced-section">
+      <div class="advanced-section-title">WEB6 reasoning features (require WEB6 routing)</div>
+
+      <div class="toggle-row" id="rowFahrn">
+        <div class="toggle-info">
+          <div class="toggle-label">FAHRN — Fractal Adaptive Holonic Reasoning Network</div>
+          <div class="toggle-desc">
+            Runs a multi-agent reasoning-network dispatch before calling the provider. FAHRN scores
+            sub-agents by task type (<em>trust-guidance</em>) and injects an execution plan into the
+            system context — improving answer quality for complex queries at the cost of latency.
+          </div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggleFahrn">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-row" id="rowBraid">
+        <div class="toggle-info">
+          <div class="toggle-label">Holonic Braid — shared reasoning graph</div>
+          <div class="toggle-desc">
+            Fetches the collective Holonic BRAID reasoning graph for the <em>trust-guidance</em> task
+            type and injects it into the system context. Enriches responses with patterns learned across
+            the OASIS holon network.
+          </div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggleBraid">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="settings-actions">
+      <button class="btn-save" onclick="saveSettings()">Save preferences</button>
+      <span class="save-confirm" id="saveConfirm2">✓ Saved</span>
+    </div>
+  </div>
 </div>
 
 <script src="/js/app.js"></script>
 <script>
 (function () {
   const PROVIDER_KEY = 'st_ai_provider';
+  const WEB6_KEY     = 'st_use_web6';
+  const FAHRN_KEY    = 'st_use_fahrn';
+  const BRAID_KEY    = 'st_use_holonic_braid';
 
-  // Load saved value.
-  const saved = (() => { try { return localStorage.getItem(PROVIDER_KEY) || 'leelaai'; } catch { return 'leelaai'; } })();
+  function getBool(key, def) {
+    try { const v = localStorage.getItem(key); return v === null ? def : v === 'true'; } catch { return def; }
+  }
 
-  // Reflect in UI.
+  // ── Provider radio cards ──────────────────────────────
+  const savedProvider = (() => { try { return localStorage.getItem(PROVIDER_KEY) || 'leelaai'; } catch { return 'leelaai'; } })();
   const cards = document.querySelectorAll('.provider-card');
   cards.forEach(card => {
     const input = card.querySelector('input[type="radio"]');
-    if (card.dataset.provider === saved) {
+    if (card.dataset.provider === savedProvider) {
       input.checked = true;
       card.classList.add('selected');
     }
@@ -256,13 +395,43 @@
     });
   });
 
+  // ── Toggle switches ───────────────────────────────────
+  const web6El  = document.getElementById('toggleWeb6');
+  const fahrnEl = document.getElementById('toggleFahrn');
+  const braidEl = document.getElementById('toggleBraid');
+  const rowFahrn = document.getElementById('rowFahrn');
+  const rowBraid = document.getElementById('rowBraid');
+
+  web6El.checked  = getBool(WEB6_KEY,  false);
+  fahrnEl.checked = getBool(FAHRN_KEY, false);
+  braidEl.checked = getBool(BRAID_KEY, false);
+
+  function syncAdvanced() {
+    const on = web6El.checked;
+    rowFahrn.classList.toggle('disabled', !on);
+    rowBraid.classList.toggle('disabled', !on);
+  }
+  syncAdvanced();
+  web6El.addEventListener('change', syncAdvanced);
+
+  // ── Save ──────────────────────────────────────────────
   window.saveSettings = function () {
     const checked = document.querySelector('input[name="provider"]:checked');
-    if (!checked) return;
-    try { localStorage.setItem(PROVIDER_KEY, checked.value); } catch {}
-    const confirm = document.getElementById('saveConfirm');
-    confirm.classList.add('show');
-    setTimeout(() => confirm.classList.remove('show'), 2500);
+    if (checked) {
+      try { localStorage.setItem(PROVIDER_KEY, checked.value); } catch {}
+    }
+    try {
+      localStorage.setItem(WEB6_KEY,  String(web6El.checked));
+      localStorage.setItem(FAHRN_KEY, String(fahrnEl.checked));
+      localStorage.setItem(BRAID_KEY, String(braidEl.checked));
+    } catch {}
+
+    ['saveConfirm', 'saveConfirm2'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 2500);
+    });
   };
 })();
 </script>

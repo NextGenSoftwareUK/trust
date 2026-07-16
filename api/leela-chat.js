@@ -85,8 +85,8 @@ async function callViaWeb6(providerCfg, systemContent, messages, avatarId, userT
       ...messages.map(m => ({ role: m.role, content: m.content })),
     ],
     AvatarId:        avatarId || undefined,
-    UseFAHRN:        false,
-    UseHolonicBraid: false,
+    UseFAHRN:        providerCfg.useFahrn    ?? false,
+    UseHolonicBraid: providerCfg.useBraid    ?? false,
     FahrnTaskType:   'trust-guidance',
     Routing: { Fallback: true },
   });
@@ -109,7 +109,7 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const { messages, context, avatarId, provider: reqProvider } = req.body || {};
+  const { messages, context, avatarId, provider: reqProvider, useWeb6, useFahrn, useHolonicBraid } = req.body || {};
 
   if (!Array.isArray(messages) || messages.length === 0) {
     return res.status(400).json({ error: 'messages[] is required' });
@@ -133,15 +133,26 @@ module.exports = async function handler(req, res) {
       if (parts.length) systemContent += `\n\nCurrent session context:\n${parts.join('\n')}`;
     }
 
-    // Resolve provider. 'leelai' (default) → direct call. Others → WEB6.
+    // Resolve provider.
+    // If useWeb6 is true: always go through WEB6 (even Leela AI).
+    // If useWeb6 is false: Leela AI → direct; everything else → WEB6.
     const providerKey = (reqProvider || 'leelaai').toLowerCase();
     let reply;
 
-    if (providerKey === 'leelaai' || providerKey === 'leela') {
+    const isLeela = providerKey === 'leelaai' || providerKey === 'leela';
+
+    if (isLeela && !useWeb6) {
       reply = await callLeelaDirect(systemContent, messages);
     } else {
-      const providerCfg = WEB6_PROVIDERS[providerKey];
-      if (!providerCfg) return res.status(400).json({ error: `Unknown provider: ${reqProvider}` });
+      // For Leela via WEB6 we use the LeelaAI provider name; others use WEB6_PROVIDERS.
+      let providerCfg;
+      if (isLeela) {
+        providerCfg = { provider: 'LeelaAI', model: 'leela' };
+      } else {
+        providerCfg = WEB6_PROVIDERS[providerKey];
+        if (!providerCfg) return res.status(400).json({ error: `Unknown provider: ${reqProvider}` });
+      }
+      providerCfg = { ...providerCfg, useFahrn: !!useFahrn, useBraid: !!useHolonicBraid };
       const userToken = getBearerToken(req);
       reply = await callViaWeb6(providerCfg, systemContent, messages, avatarId, userToken);
     }
