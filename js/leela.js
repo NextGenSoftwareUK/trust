@@ -102,10 +102,12 @@
       const session = (() => { try { return JSON.parse(localStorage.getItem('st_session') || 'null'); } catch { return null; } })();
       const authHeaders = session?.token ? { Authorization: `Bearer ${session.token}` } : {};
 
+      const provider = (() => { try { return localStorage.getItem('st_ai_provider') || 'leelaai'; } catch { return 'leelaai'; } })();
+
       const res = await fetch('/api/leela-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
-        body: JSON.stringify({ messages: history, context: _context }),
+        body: JSON.stringify({ messages: history, context: _context, provider }),
       });
 
       hideTyping();

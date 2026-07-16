@@ -4,25 +4,10 @@ const { Web6Client } = require('@oasisomniverse/web6-api');
 const { getBearerToken } = require('./_oasis');
 const cfg = require('../config/leela');
 
-// ── Runtime config: env vars override code-level defaults in config/leela.js ──
-const WEB6_API = process.env.WEB6_API_URL || cfg.web6ApiUrl;
-
-// Parse a boolean env var; returns cfg fallback when the var is unset/empty.
-function envBool(name, fallback) {
-  const v = process.env[name];
-  if (v == null || v === '') return fallback;
-  return v.toLowerCase() === 'true';
-}
-
-const USE_FAHRN         = envBool('LEELA_USE_FAHRN',         cfg.useFahrn);
-const USE_HOLONIC_BRAID = envBool('LEELA_USE_HOLONIC_BRAID', cfg.useHolonicBraid);
-
-// WEB6_API_KEY: pre-shared secret for server-to-server auth (Vercel → Railway Web6).
-// Set as a Vercel environment variable. Web6 checks X-Web6-Api-Key BEFORE the JWT, so even
-// if the user's JWT is expired or absent the AI call still succeeds. Generate with:
-//   node -e "console.log(require('crypto').randomBytes(20).toString('hex'))"
-// and set the same value in Railway (WEB6_API_KEY) and Vercel (WEB6_API_KEY).
-const WEB6_API_KEY = process.env.WEB6_API_KEY || '';
+const WEB6_API     = process.env.WEB6_API_URL    || cfg.web6ApiUrl;
+const WEB6_API_KEY = process.env.WEB6_API_KEY    || '';
+const LEELA_API_KEY = process.env.LEELA_API_KEY  || '';
+const LEELA_BASE_URL = (process.env.LEELA_BASE_URL || 'https://namozyqyvwf62hqxpzujt7e5hq0njhge.lambda-url.eu-west-1.on.aws').replace(/\/+$/, '');
 
 const LEELA_SYSTEM = `You are Leela, an expert trust document assistant for SovereignTrust — a platform that helps people create their own Express Private Trust deed.
 
@@ -41,35 +26,104 @@ Your limits:
 
 Your tone: warm, clear, encouraging, professional. Be concise — users are filling in a form, so brief helpful answers are better than long essays. End with a follow-up question or prompt when natural.`;
 
+// Provider configs used when routing through WEB6.
+const WEB6_PROVIDERS = {
+  openai:    { provider: 'OpenAI',    model: 'gpt-4o' },
+  anthropic: { provider: 'Anthropic', model: 'claude-sonnet-4-6' },
+  groq:      { provider: 'Groq',      model: 'llama-3.3-70b-versatile' },
+  openserv:  { provider: 'OpenServ',  model: 'gpt-5.4' },
+};
+
+// ── Direct Leela call (bypasses WEB6 entirely) ─────────────────────────────
+async function callLeelaDirect(systemContent, messages) {
+  if (!LEELA_API_KEY) throw new Error('LEELA_API_KEY is not configured on the server.');
+
+  const payload = {
+    model: 'leela',
+    messages: [
+      { role: 'system', content: systemContent },
+      ...messages.map(m => ({ role: m.role, content: m.content })),
+    ],
+  };
+
+  const response = await fetch(`${LEELA_BASE_URL}/v1/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${LEELA_API_KEY}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const body = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const msg = body?.error?.message || `Leela returned ${response.status}`;
+    throw new Error(msg);
+  }
+
+  return body.choices?.[0]?.message?.content || '';
+}
+
+// ── WEB6-routed call (OpenAI, Anthropic, Groq, OpenServ, …) ───────────────
+async function callViaWeb6(providerCfg, systemContent, messages, avatarId, userToken) {
+  const web6 = new Web6Client({
+    baseUrl: WEB6_API,
+    persistSession: false,
+    fetchImpl: (url, init) => {
+      if (WEB6_API_KEY) init.headers['X-Web6-Api-Key'] = WEB6_API_KEY;
+      if (userToken)    init.headers['Authorization']  = `Bearer ${userToken}`;
+      return fetch(url, init);
+    },
+  });
+
+  const r = await web6.completion.complete({
+    Provider:        providerCfg.provider,
+    Model:           providerCfg.model,
+    Messages: [
+      { role: 'system', content: systemContent },
+      ...messages.map(m => ({ role: m.role, content: m.content })),
+    ],
+    AvatarId:        avatarId || undefined,
+    UseFAHRN:        false,
+    UseHolonicBraid: false,
+    FahrnTaskType:   'trust-guidance',
+    Routing: { Fallback: true },
+  });
+
+  const isError = r.isError ?? r.IsError ?? false;
+  const content = r.result?.content ?? r.result?.Content ?? r.Result?.content ?? r.Result?.Content;
+  const msg     = r.message || r.Message || r.detailedMessage || r.DetailedMessage;
+
+  if (isError || !content) {
+    console.error('[leela-chat] WEB6 error:', msg, '| raw:', JSON.stringify(r.raw));
+    throw new Error(msg || 'WEB6 returned an empty completion response.');
+  }
+
+  return content;
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  // Forward the user's OASIS JWT and optionally the pre-shared API key.
-  // AuthorizeAttribute accepts either: API key (X-Web6-Api-Key) or a valid JWT (Authorization: Bearer).
-  const userToken = getBearerToken(req);
-  const web6 = new Web6Client({
-    baseUrl: WEB6_API,
-    persistSession: false,
-    fetchImpl: (url, init) => {
-      if (WEB6_API_KEY) init.headers['X-Web6-Api-Key'] = WEB6_API_KEY;
-      if (userToken) init.headers['Authorization'] = `Bearer ${userToken}`;
-      return fetch(url, init);
-    },
-  });
-
-  const { messages, context, avatarId } = req.body || {};
+  const { messages, context, avatarId, provider: reqProvider } = req.body || {};
 
   if (!Array.isArray(messages) || messages.length === 0) {
     return res.status(400).json({ error: 'messages[] is required' });
   }
 
-  try {
-    let systemContent = LEELA_SYSTEM;
+  // Ensure there is at least one user message before calling any provider.
+  const hasUserMsg = messages.some(m => (m.role || '').toLowerCase() === 'user');
+  if (!hasUserMsg) {
+    return res.status(400).json({ error: 'messages[] must contain at least one user message.' });
+  }
 
-    // Inject page context so Leela knows where the user is in the flow.
+  try {
+    // Build system context, optionally enriched with page/step info.
+    let systemContent = LEELA_SYSTEM;
     if (context) {
       const parts = [];
       if (context.page)         parts.push(`Current page: ${context.page}`);
@@ -79,74 +133,23 @@ module.exports = async function handler(req, res) {
       if (parts.length) systemContent += `\n\nCurrent session context:\n${parts.join('\n')}`;
     }
 
-    // Build the message list: system prompt first, then conversation history.
-    const chatMessages = [
-      { Role: 'system', Content: systemContent },
-      ...messages.map(m => ({ Role: m.role, Content: m.content })),
-    ];
+    // Resolve provider. 'leelai' (default) → direct call. Others → WEB6.
+    const providerKey = (reqProvider || 'leelaai').toLowerCase();
+    let reply;
 
-    // FAHRN and Holonic BRAID are now handled server-side inside /v1/complete.
-    // Passing UseFAHRN / UseHolonicBraid / FahrnTaskType lets the WEB6 API
-    // orchestrate the reasoning pipeline before calling the provider — same
-    // outcome as the old explicit client-side calls but in a single round-trip.
-    const r = await web6.completion.complete({
-      Provider:        cfg.provider,
-      Model:           cfg.model,
-      Messages:        chatMessages,
-      AvatarId:        avatarId || undefined,
-      UseFAHRN:        USE_FAHRN,
-      UseHolonicBraid: USE_HOLONIC_BRAID,
-      FahrnTaskType:   'trust-guidance',
-      Routing: {
-        Fallback:    true,
-        UseOpenServ: cfg.useOpenServ ?? undefined,
-      },
-    });
-
-    // OASISResult properties may be PascalCase or camelCase depending on API/client version.
-    const isError   = r.isError   ?? r.IsError   ?? false;
-    const content   = r.result?.content ?? r.result?.Content ?? r.Result?.content ?? r.Result?.Content;
-    const msg       = r.message   || r.Message   || r.detailedMessage || r.DetailedMessage;
-
-    if (isError || !content) {
-      console.error('[leela-chat] WEB6 error — isError:', isError, '| content:', content, '| msg:', msg, '| raw:', JSON.stringify(r.raw));
-      throw new Error(msg || `WEB6 returned an empty completion response. Keys: ${JSON.stringify(Object.keys(r))}`);
+    if (providerKey === 'leelaai' || providerKey === 'leela') {
+      reply = await callLeelaDirect(systemContent, messages);
+    } else {
+      const providerCfg = WEB6_PROVIDERS[providerKey];
+      if (!providerCfg) return res.status(400).json({ error: `Unknown provider: ${reqProvider}` });
+      const userToken = getBearerToken(req);
+      reply = await callViaWeb6(providerCfg, systemContent, messages, avatarId, userToken);
     }
 
-    return res.status(200).json({ reply: content });
+    return res.status(200).json({ reply });
 
   } catch (err) {
     console.error('[leela-chat]', err);
     return res.status(500).json({ error: err.message });
   }
 };
-
-// ── OLD explicit client-side FAHRN + Braid orchestration (kept for reference) ─
-//
-// Previously leela-chat made three separate round-trips:
-//   1. GET /v1/holonic-braid/graph/trust-guidance  → inject MermaidDiagram into system context
-//   2. POST /v1/reasoning-network/dispatch          → inject FinalMermaidPlan into system context
-//   3. POST /v1/complete                            → actual LLM call
-//
-// The WEB6 /v1/complete endpoint now handles steps 1 and 2 internally when
-// UseFAHRN / UseHolonicBraid are set, collapsing three round-trips into one.
-//
-// async function getHolonicBraidGraph() {
-//   try {
-//     const r = await web6.holonicBraid.getGraph({ taskType: 'trust-guidance' });
-//     if (!r.isError && r.result?.MermaidDiagram) return r.result.MermaidDiagram;
-//   } catch { }
-//   return null;
-// }
-//
-// async function fahnDispatch(problem, avatarId) {
-//   try {
-//     const r = await web6.reasoningNetwork.dispatch({
-//       Problem:  problem,
-//       TaskType: 'trust-guidance',
-//       AvatarId: avatarId || '00000000-0000-0000-0000-000000000000',
-//     });
-//     if (!r.isError && r.result?.FinalMermaidPlan) return r.result.FinalMermaidPlan;
-//   } catch { }
-//   return null;
-// }
