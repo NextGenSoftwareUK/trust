@@ -138,6 +138,21 @@
   // Backwards compat.
   window.luminaMsg = send;
 
+  const PROVIDER_LABELS = {
+    leelaai:   'Leela AI',
+    openai:    'OpenAI GPT-4o',
+    anthropic: 'Anthropic Claude',
+    groq:      'Groq Llama 3.3',
+    openserv:  'OpenServ',
+  };
+
+  function getProviderLabel() {
+    try {
+      const key = (localStorage.getItem('st_ai_provider') || 'leelaai').toLowerCase();
+      return PROVIDER_LABELS[key] || key;
+    } catch { return 'Leela AI'; }
+  }
+
   // ── Boot ──────────────────────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', function () {
     const area = msgArea();
@@ -145,6 +160,10 @@
     const btn  = sendBtn();
 
     if (!area) return; // page doesn't have the Leela panel
+
+    // Show current provider in the panel subtitle.
+    const sub = document.querySelector('.lumina-sub');
+    if (sub) sub.textContent = 'Trust Document Assistant · ' + getProviderLabel();
 
     // Initial greeting — displayed only, not sent to the AI (it's a canned UI string, not an API response).
     const greeting = area.dataset.greeting ||
