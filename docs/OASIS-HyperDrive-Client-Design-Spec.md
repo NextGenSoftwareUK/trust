@@ -1,8 +1,10 @@
 # OASIS HyperDrive Client — Design Specification
 
-**Version:** 1.0  
+**Version:** 1.1  
 **Date:** 2026-07-17  
-**Status:** Draft
+**Status:** Implemented (Phase 1 + Phase 2 complete)  
+**Implementation Reference:** [OASIS-HyperDrive-Client-Implementation.md](./OASIS-HyperDrive-Client-Implementation.md)  
+**Repository:** `C:\Source\OasisHyperDriveClient`
 
 ---
 
@@ -83,28 +85,33 @@ The client communicates exclusively with the **WEB4 OASIS API** (`NextGenSoftwar
 | **System tray** | `Avalonia.Controls.TrayIcon` (built-in) | `Tray` module (built-in) | Limited / workarounds |
 | **Native look & feel** | Avalonia Fluent theme + custom | Chromium shell | Platform-native controls |
 | **Binary size** | ~30–50 MB self-contained | ~120–200 MB | ~50–80 MB |
-| **Custom neon effects** | `AvaloniaGlowEffect` / `Skia` shaders | CSS | Limited |
+| **Custom neon effects** | SkiaSharp shaders | CSS | Limited |
 | **Consistency with ONODE Manager** | Same codebase patterns, shared libs | None | None |
-| **Maturity** | Stable 11.x | Very mature | Newer, gaps |
+| **Maturity** | Stable 12.x | Very mature | Newer, gaps |
 
-**Verdict: Avalonia 11.x** — same recommendation as ONODE Manager. Shared `OasisApiClient` and model libraries reduce duplication between the two apps.
+**Verdict: Avalonia 12.1.0** — same recommendation as ONODE Manager. Shared `OasisApiClient` and model libraries reduce duplication between the two apps.
 
-### Full Stack
+### Full Stack (as implemented)
 
-| Layer | Technology |
-|---|---|
-| UI Framework | Avalonia UI 11.x |
-| Language | C# 12, .NET 8 |
-| MVVM | ReactiveUI (built into Avalonia ecosystem) |
-| HTTP Client | `HttpClient` + `System.Text.Json` |
-| Auth token storage | `Microsoft.Windows.CredentialManager` (Win) / `libsecret` (Linux) / `Keychain` (macOS) via `CredentialStore.Net` |
-| Tray icon | `Avalonia.Controls.TrayIcon` |
-| Icon rendering | SkiaSharp (neon glow shader on the O) |
-| Notifications | `Avalonia.Controls.Notifications` + OS toasts |
-| Logging | Serilog → file |
-| Config | `Microsoft.Extensions.Configuration` + `appsettings.json` |
-| DI Container | `Microsoft.Extensions.DependencyInjection` |
-| Packaging | `dotnet publish` → self-contained; `Velopack` for installers |
+| Layer | Technology | Version |
+|---|---|---|
+| UI Framework | Avalonia UI | 12.1.0 |
+| Language | C# 12, .NET 10 | — |
+| MVVM | ReactiveUI | 23.2.28 |
+| Avalonia ReactiveUI bridge | Avalonia.ReactiveUI | 11.3.8 ¹ |
+| HTTP Client | `HttpClient` + `System.Text.Json` + Polly | — |
+| Auth token storage | `FileCredentialStore` (base64, `%APPDATA%`) ² | — |
+| Tray icon | `Avalonia.Controls.TrayIcon` (built-in) | — |
+| Icon rendering | SkiaSharp (neon-O rendered per `TrayState` at runtime) | — |
+| Notifications | `Avalonia.Controls.Notifications.WindowNotificationManager` | — |
+| Logging | Serilog (file + console sinks) | — |
+| DI Container | `Microsoft.Extensions.DependencyInjection` | 10.0.10 |
+| Background services | `Microsoft.Extensions.Hosting` | 10.0.10 |
+| Config | `AppSettings` class + JSON (`settings.json`) | — |
+| Packaging | `dotnet publish` → self-contained single-file; Velopack planned | — |
+
+> ¹ `Avalonia.ReactiveUI` uses independent versioning. `11.3.8` is the correct package for Avalonia `12.1.0`.  
+> ² OS Keychain integration (Windows Credential Manager / macOS Keychain / Linux libsecret) is planned for Phase 3.
 
 ---
 
@@ -864,29 +871,37 @@ On startup, client checks a configured update URL for a `releases.json` manifest
 
 ## 24. Roadmap & Phasing
 
-### Phase 1 — MVP (core tray + browser)
+### Phase 1 — MVP (core tray + browser) — **Complete**
 
-- [ ] Avalonia project scaffold with system tray
-- [ ] Neon-O icon with colour states (grey, yellow, red, cyan)
-- [ ] Login window and JWT auth
-- [ ] File browser with list view
-- [ ] Load holons (All / by type) via `api/data/load-all-holons`
-- [ ] Provider filter dropdown
-- [ ] Basic operations: download file, delete (soft), rename
-- [ ] Metadata viewer panel
-- [ ] 30-second dashboard poll → tray state updates
-- [ ] Windows + macOS + Linux builds
+- [x] Avalonia project scaffold with system tray
+- [x] Neon-O icon with colour states (grey, yellow, red, cyan) — rendered via SkiaSharp at runtime
+- [x] Login window and JWT auth
+- [x] File browser with list view (DataGrid with sidebar nav)
+- [x] Load holons (All / by type) via `api/data/load-all-holons`
+- [x] Provider filter dropdown (populated from `api/hyperDrive/config`)
+- [x] Basic operations: download file, delete (soft + hard), rename
+- [x] Metadata viewer panel
+- [x] 30-second dashboard poll → tray state updates
+- [x] Windows + macOS + Linux builds
 
-### Phase 2 — Full Operations
+### Phase 2 — Full Operations — **Complete**
 
-- [ ] Upload files (drag & drop + toolbar)
-- [ ] Send to Avatar dialog + avatar search
-- [ ] Grid/icon view mode for NFTs/GeoNFTs
-- [ ] Version history viewer
-- [ ] OS toast notifications for events
-- [ ] HyperDrive status dashboard window
-- [ ] AI recommendations display
-- [ ] Context menu "View on Provider" links
+- [x] Upload files (file picker toolbar button + `api/data/save-file`)
+- [x] Download files (`api/data/load-file` + save file picker)
+- [x] Send to Avatar dialog + avatar search (`api/avatar/search`)
+- [x] Right-click context menu on file list items
+- [x] Toolbar commands fully wired (Upload, Download, Rename, Send, Metadata, Delete, Refresh)
+- [x] OS toast notifications (`WindowNotificationManager`)
+- [x] HyperDrive status dashboard window
+- [x] Settings window (API URL, provider, auto-start, refresh rate, notification prefs)
+- [x] Auto-start on login (Windows / macOS / Linux platform implementations)
+- [x] Dynamic provider status bar (updates from `HyperDriveMonitorService`)
+- [x] Unit tests (17 passing — xUnit + NSubstitute)
+- [x] Cross-platform build scripts (Windows PS1, Linux/macOS shell)
+- [ ] Grid/icon view mode for NFTs/GeoNFTs _(deferred to Phase 3)_
+- [ ] Version history viewer _(deferred to Phase 3)_
+- [ ] AI recommendations display _(deferred to Phase 3)_
+- [ ] Context menu "View on Provider" links _(deferred to Phase 3)_
 
 ### Phase 3 — Advanced
 
@@ -896,8 +911,15 @@ On startup, client checks a configured update URL for a `releases.json` manifest
 - [ ] Batch operations (multi-select)
 - [ ] Sharing links (public/private)
 - [ ] Quota usage breakdown per provider
-- [ ] Cost optimisation recommendations in-app
-- [ ] Certificate pinning for enterprise
+- [ ] Cost optimisation / AI recommendations in-app
+- [ ] Grid / icon view for NFTs and GeoNFTs
+- [ ] Version history viewer (traverse `PreviousVersionId` chain)
+- [ ] Context menu "View on Provider" links (Holochain explorer, IPFS gateway, etc.)
+- [ ] Drag-and-drop upload onto the file browser window
+- [ ] OS Keychain credential store (Windows Credential Manager / macOS Keychain / Linux libsecret)
+- [ ] Polly circuit breaker for HTTP resilience
+- [ ] Velopack installers + auto-update
+- [ ] Certificate pinning for enterprise deployments
 
 ---
 
