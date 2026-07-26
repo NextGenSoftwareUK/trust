@@ -11,8 +11,11 @@
 //
 // Change values here to update the defaults without needing to touch env vars.
 module.exports = {
+  // WEB4 OASIS API base URL.
+  web4ApiUrl: 'https://dev.api.web4.oasisomniverse.one',
+
   // WEB6 OASIS AI API base URL.
-  web6ApiUrl: 'https://api.web6.oasisomniverse.one',
+  web6ApiUrl: 'https://dev.api.web6.oasisomniverse.one',
 
   // AI provider and model for standard completions.
   // "LeelaAI" routes to the Leela AI Lambda endpoint via WEB6.
