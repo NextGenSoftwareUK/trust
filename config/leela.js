@@ -11,6 +11,9 @@
 //
 // Change values here to update the defaults without needing to touch env vars.
 module.exports = {
+  // WEB4 OASIS API base URL.
+  web4ApiUrl: 'https://api.web4.oasisomniverse.one',
+
   // WEB6 OASIS AI API base URL.
   web6ApiUrl: 'https://api.web6.oasisomniverse.one',
 
