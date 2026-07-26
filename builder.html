@@ -457,6 +457,23 @@
     };
   }
 
+  function validateEmailInputs(errors) {
+    document.querySelectorAll('input[type="email"]').forEach(el => {
+      const value = el.value.trim();
+      const label = el.closest('.field-group')?.querySelector('.field-label')?.textContent?.trim() || 'Email';
+      if (!value) {
+        if (el.id === 'f-settlorEmail') {
+          errors.push({ fieldId: el.id, label, step: 1 });
+        }
+        return;
+      }
+      if (!el.checkValidity()) {
+        const step = el.id === 'f-settlorEmail' ? 1 : (el.id === 'f-protectorEmail' ? 4 : 2);
+        errors.push({ fieldId: el.id, label, step });
+      }
+    });
+  }
+
   function populateTrustData(data) {
     if (!data) return;
     const o = data.overview || {};
@@ -565,6 +582,7 @@
     req('f-settlorName',    'Settlor Full Legal Name', 1);
     req('f-settlorAddress', 'Settlor Full Address',    1);
     req('f-settlorEmail',   'Settlor Email Address',   1);
+    validateEmailInputs(errors);
 
     const trustees = [...document.querySelectorAll('#trustees-container .party-card')];
     trustees.forEach((card, i) => {
