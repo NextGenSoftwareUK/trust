@@ -18,8 +18,11 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'avatarId, name and data are required.' });
   }
 
-  const holon = {
-    Id: id || '00000000-0000-0000-0000-000000000000',
+  const nullGuid = '00000000-0000-0000-0000-000000000000';
+  const isUpdate = id && id !== nullGuid;
+
+  let holon = {
+    Id: id || nullGuid,
     Name: name,
     Description: `SovereignTrust trust profile (${status || 'Draft'})`,
     HolonType: 141,
@@ -32,7 +35,41 @@ module.exports = async function handler(req, res) {
   };
 
   try {
+    const { OASIS_API } = require('./_oasis');
     const oasis = createClient(token);
+
+    // Load existing holon before update so ProviderUniqueStorageKey is preserved.
+    // MongoDBOASIS.SaveHolonAsync uses that key to decide Add vs Update — without
+    // it every save calls AddAsync (insert), creating a new document each time.
+    if (isUpdate) {
+      try {
+        const loadRes = await fetch(`${OASIS_API}/api/data/load-holon`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ Id: id, LoadChildren: false, Recursive: false })
+        });
+        const loadText = await loadRes.text();
+        const loadJson = loadText ? JSON.parse(loadText) : null;
+        const inner = loadJson?.result ?? loadJson;
+        const existing = inner?.result ?? inner;
+        if (existing && !inner?.isError) {
+          holon = {
+            ...existing,
+            Name: name,
+            Description: `SovereignTrust trust profile (${status || 'Draft'})`,
+            MetaData: {
+              ...(existing.metaData || existing.MetaData || {}),
+              trustData: JSON.stringify(data),
+              status: status || 'Draft',
+              updatedAt: new Date().toISOString()
+            }
+          };
+        }
+      } catch (loadErr) {
+        console.error('[trust-save] load-before-update failed, proceeding with new holon:', loadErr.message);
+      }
+    }
+
     const saveRes = await oasis.data.saveHolon({ Holon: holon, SaveChildren: true });
 
     console.log('[trust-save] OASIS result: isError=', saveRes.isError, 'message=', saveRes.message, 'resultId=', saveRes.result?.id || saveRes.result?.Id || '(none)');
