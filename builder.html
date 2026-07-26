@@ -671,16 +671,16 @@
     trustees.forEach((card, i) => {
       const nameEl = card.querySelector('[data-field="name"]');
       const addrEl = card.querySelector('[data-field="address"]');
-      if (!nameEl?.value.trim()) errors.push({ fieldId: null, label: `Trustee ${i + 1} Full Legal Name`, step: 2 });
-      if (!addrEl?.value.trim()) errors.push({ fieldId: null, label: `Trustee ${i + 1} Full Address`,    step: 2 });
+      if (!nameEl?.value.trim()) errors.push({ fieldKey: `#trustees-container .party-card:nth-of-type(${i + 1}) [data-field="name"]`, label: `Trustee ${i + 1} Full Legal Name`, step: 2 });
+      if (!addrEl?.value.trim()) errors.push({ fieldKey: `#trustees-container .party-card:nth-of-type(${i + 1}) [data-field="address"]`, label: `Trustee ${i + 1} Full Address`,    step: 2 });
     });
 
     const beneficiaries = [...document.querySelectorAll('#beneficiaries-container .party-card')];
     beneficiaries.forEach((card, i) => {
       const nameEl = card.querySelector('[data-field="name"]');
       const addrEl = card.querySelector('[data-field="address"]');
-      if (!nameEl?.value.trim()) errors.push({ fieldId: null, label: `Beneficiary ${i + 1} Full Legal Name`, step: 3 });
-      if (!addrEl?.value.trim()) errors.push({ fieldId: null, label: `Beneficiary ${i + 1} Full Address`,    step: 3 });
+      if (!nameEl?.value.trim()) errors.push({ fieldKey: `#beneficiaries-container .party-card:nth-of-type(${i + 1}) [data-field="name"]`, label: `Beneficiary ${i + 1} Full Legal Name`, step: 3 });
+      if (!addrEl?.value.trim()) errors.push({ fieldKey: `#beneficiaries-container .party-card:nth-of-type(${i + 1}) [data-field="address"]`, label: `Beneficiary ${i + 1} Full Address`,    step: 3 });
     });
 
     req('f-signingPlace',   'Place of Signing',    5);
@@ -708,8 +708,11 @@
     document.querySelectorAll('.field-input--error').forEach(el => el.classList.remove('field-input--error'));
     document.querySelectorAll('.field-error-msg').forEach(el => el.remove());
     errors.forEach(e => {
-      if (!e.fieldId) return;
-      const el = document.getElementById(e.fieldId);
+      const el = e.fieldId
+        ? document.getElementById(e.fieldId)
+        : e.fieldKey
+          ? document.querySelector(e.fieldKey)
+          : null;
       if (!el) return;
       el.classList.add('field-input--error');
       const msg = document.createElement('div');
