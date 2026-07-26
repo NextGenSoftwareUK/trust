@@ -13,6 +13,11 @@
     box-shadow: 0 0 0 2px rgba(201, 76, 76, 0.14);
     background: #fff7f7;
   }
+  input[type="tel"].field-input--error {
+    border-color: #c94c4c !important;
+    box-shadow: 0 0 0 2px rgba(201, 76, 76, 0.14);
+    background: #fff7f7;
+  }
   .field-error-msg {
     margin-top: 8px;
     color: #c94c4c;
@@ -488,6 +493,17 @@
     });
   }
 
+  function validatePhoneInputs(errors) {
+    document.querySelectorAll('input[type="tel"]').forEach(el => {
+      const value = el.value.trim();
+      const label = el.closest('.field-group')?.querySelector('.field-label')?.textContent?.trim() || 'Phone';
+      if (!value) return;
+      if (!el.checkValidity()) {
+        errors.push({ fieldId: el.id || null, label, step: 1, message: 'Please enter a valid phone number.' });
+      }
+    });
+  }
+
   function refreshEmailFieldState(el) {
     if (!el || el.type !== 'email') return;
     const value = el.value.trim();
@@ -505,12 +521,38 @@
     }
   }
 
+  function refreshPhoneFieldState(el) {
+    if (!el || el.type !== 'tel') return;
+    const value = el.value.trim();
+    const invalid = value.length > 0 && !el.checkValidity();
+    el.classList.toggle('field-input--error', invalid);
+
+    const existing = el.parentNode.querySelector('.field-error-msg');
+    if (existing) existing.remove();
+
+    if (invalid) {
+      const msg = document.createElement('div');
+      msg.className = 'field-error-msg';
+      msg.textContent = 'Please enter a valid phone number.';
+      el.parentNode.insertBefore(msg, el.nextSibling);
+    }
+  }
+
   function wireEmailValidation(scope = document) {
     scope.querySelectorAll('input[type="email"]').forEach(el => {
       if (el.dataset.emailValidationWired === '1') return;
       el.dataset.emailValidationWired = '1';
       el.addEventListener('input', () => refreshEmailFieldState(el));
       el.addEventListener('blur', () => refreshEmailFieldState(el));
+    });
+  }
+
+  function wirePhoneValidation(scope = document) {
+    scope.querySelectorAll('input[type="tel"]').forEach(el => {
+      if (el.dataset.phoneValidationWired === '1') return;
+      el.dataset.phoneValidationWired = '1';
+      el.addEventListener('input', () => refreshPhoneFieldState(el));
+      el.addEventListener('blur', () => refreshPhoneFieldState(el));
     });
   }
 
@@ -623,6 +665,7 @@
     req('f-settlorAddress', 'Settlor Full Address',    1);
     req('f-settlorEmail',   'Settlor Email Address',   1);
     validateEmailInputs(errors);
+    validatePhoneInputs(errors);
 
     const trustees = [...document.querySelectorAll('#trustees-container .party-card')];
     trustees.forEach((card, i) => {
@@ -872,6 +915,7 @@
 
   document.querySelectorAll('.builder-main').forEach(el => el.addEventListener('input', scheduleAutosave));
   wireEmailValidation();
+  wirePhoneValidation();
 
   (async function init() {
     if (trustId) {
