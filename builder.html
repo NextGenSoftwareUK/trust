@@ -7,6 +7,19 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/main.css">
+<style>
+  input[type="email"].field-input--error {
+    border-color: #c94c4c !important;
+    box-shadow: 0 0 0 2px rgba(201, 76, 76, 0.14);
+    background: #fff7f7;
+  }
+  .field-error-msg {
+    margin-top: 8px;
+    color: #c94c4c;
+    font-size: 13px;
+    line-height: 1.35;
+  }
+</style>
 <script src="/js/auth.js"></script>
 <script src="/js/trust-api.js"></script>
 <script>requireAuth();</script>
@@ -410,6 +423,7 @@
     d.className = 'party-card';
     d.innerHTML = `<div class="party-card-header"><div class="party-card-title">Trustee ${trusteeCount}</div><button class="btn-remove" onclick="this.closest('.party-card').remove()">Remove ×</button></div><div class="field-group"><label class="field-label">Full Legal Name</label><input type="text" class="field-input" data-field="name" placeholder="Trustee full name"></div><div class="field-group"><label class="field-label">Full Address</label><textarea class="field-input" data-field="address" placeholder="Full address" style="min-height:72px;"></textarea></div><div class="grid-2"><div class="field-group"><label class="field-label">Email</label><input type="email" class="field-input" data-field="email" placeholder="Email"></div><div class="field-group"><label class="field-label">Phone</label><input type="tel" class="field-input" data-field="phone" placeholder="Phone"></div></div>`;
     c.appendChild(d);
+    wireEmailValidation(d);
   }
 
   function addBeneficiary() {
@@ -463,14 +477,40 @@
       const label = el.closest('.field-group')?.querySelector('.field-label')?.textContent?.trim() || 'Email';
       if (!value) {
         if (el.id === 'f-settlorEmail') {
-          errors.push({ fieldId: el.id, label, step: 1 });
+          errors.push({ fieldId: el.id, label, step: 1, message: 'Email address is required.' });
         }
         return;
       }
       if (!el.checkValidity()) {
         const step = el.id === 'f-settlorEmail' ? 1 : (el.id === 'f-protectorEmail' ? 4 : 2);
-        errors.push({ fieldId: el.id, label, step });
+        errors.push({ fieldId: el.id, label, step, message: 'Please enter a valid email address.' });
       }
+    });
+  }
+
+  function refreshEmailFieldState(el) {
+    if (!el || el.type !== 'email') return;
+    const value = el.value.trim();
+    const invalid = value.length > 0 && !el.checkValidity();
+    el.classList.toggle('field-input--error', invalid);
+
+    const existing = el.parentNode.querySelector('.field-error-msg');
+    if (existing) existing.remove();
+
+    if (invalid) {
+      const msg = document.createElement('div');
+      msg.className = 'field-error-msg';
+      msg.textContent = 'Please enter a valid email address.';
+      el.parentNode.insertBefore(msg, el.nextSibling);
+    }
+  }
+
+  function wireEmailValidation(scope = document) {
+    scope.querySelectorAll('input[type="email"]').forEach(el => {
+      if (el.dataset.emailValidationWired === '1') return;
+      el.dataset.emailValidationWired = '1';
+      el.addEventListener('input', () => refreshEmailFieldState(el));
+      el.addEventListener('blur', () => refreshEmailFieldState(el));
     });
   }
 
@@ -631,7 +671,7 @@
       el.classList.add('field-input--error');
       const msg = document.createElement('div');
       msg.className = 'field-error-msg';
-      msg.textContent = e.label + ' is required.';
+      msg.textContent = e.message || (e.label + ' is required.');
       el.parentNode.insertBefore(msg, el.nextSibling);
     });
   }
@@ -831,6 +871,7 @@
   }
 
   document.querySelectorAll('.builder-main').forEach(el => el.addEventListener('input', scheduleAutosave));
+  wireEmailValidation();
 
   (async function init() {
     if (trustId) {
