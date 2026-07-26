@@ -38,37 +38,37 @@ module.exports = async function handler(req, res) {
     const { OASIS_API } = require('./_oasis');
     const oasis = createClient(token);
 
-    // Load existing holon before update so ProviderUniqueStorageKey is preserved.
-    // MongoDBOASIS.SaveHolonAsync uses that key to decide Add vs Update — without
-    // it every save calls AddAsync (insert), creating a new document each time.
-    if (isUpdate) {
-      try {
-        const loadRes = await fetch(`${OASIS_API}/api/data/load-holon`, {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({ Id: id, LoadChildren: false, Recursive: false })
-        });
-        const loadText = await loadRes.text();
-        const loadJson = loadText ? JSON.parse(loadText) : null;
-        const inner = loadJson?.result ?? loadJson;
-        const existing = inner?.result ?? inner;
-        if (existing && !inner?.isError) {
-          holon = {
-            ...existing,
-            Name: name,
-            Description: `SovereignTrust trust profile (${status || 'Draft'})`,
-            MetaData: {
-              ...(existing.metaData || existing.MetaData || {}),
-              trustData: JSON.stringify(data),
-              status: status || 'Draft',
-              updatedAt: new Date().toISOString()
-            }
-          };
-        }
-      } catch (loadErr) {
-        console.error('[trust-save] load-before-update failed, proceeding with new holon:', loadErr.message);
-      }
-    }
+    // Load-before-update workaround — commented out to test backend fix.
+    // Backend now uses IsNewHolon (set by PrepareHolonForSaving based on Id == Guid.Empty)
+    // and UpdateAsync looks up the MongoDB _id by HolonId when not supplied.
+    // if (isUpdate) {
+    //   try {
+    //     const loadRes = await fetch(`${OASIS_API}/api/data/load-holon`, {
+    //       method: 'POST',
+    //       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', Accept: 'application/json' },
+    //       body: JSON.stringify({ Id: id, LoadChildren: false, Recursive: false })
+    //     });
+    //     const loadText = await loadRes.text();
+    //     const loadJson = loadText ? JSON.parse(loadText) : null;
+    //     const inner = loadJson?.result ?? loadJson;
+    //     const existing = inner?.result ?? inner;
+    //     if (existing && !inner?.isError) {
+    //       holon = {
+    //         ...existing,
+    //         Name: name,
+    //         Description: `SovereignTrust trust profile (${status || 'Draft'})`,
+    //         MetaData: {
+    //           ...(existing.metaData || existing.MetaData || {}),
+    //           trustData: JSON.stringify(data),
+    //           status: status || 'Draft',
+    //           updatedAt: new Date().toISOString()
+    //         }
+    //       };
+    //     }
+    //   } catch (loadErr) {
+    //     console.error('[trust-save] load-before-update failed, proceeding with new holon:', loadErr.message);
+    //   }
+    // }
 
     const saveRes = await oasis.data.saveHolon({ Holon: holon, SaveChildren: true });
 
