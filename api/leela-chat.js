@@ -121,6 +121,9 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'messages[] must contain at least one user message.' });
   }
 
+  // Cap history to last 20 messages to avoid buffering large conversations in memory
+  const safeMessages = messages.slice(-20);
+
   try {
     // Build system context, optionally enriched with page/step info.
     let systemContent = LEELA_SYSTEM;
@@ -142,7 +145,7 @@ module.exports = async function handler(req, res) {
     const isLeela = providerKey === 'leelaai' || providerKey === 'leela';
 
     if (isLeela && !useWeb6) {
-      reply = await callLeelaDirect(systemContent, messages);
+      reply = await callLeelaDirect(systemContent, safeMessages);
     } else {
       // For Leela via WEB6 we use the LeelaAI provider name; others use WEB6_PROVIDERS.
       let providerCfg;
@@ -154,7 +157,7 @@ module.exports = async function handler(req, res) {
       }
       providerCfg = { ...providerCfg, useFahrn: !!useFahrn, useBraid: !!useHolonicBraid };
       const userToken = getBearerToken(req);
-      reply = await callViaWeb6(providerCfg, systemContent, messages, avatarId, userToken);
+      reply = await callViaWeb6(providerCfg, systemContent, safeMessages, avatarId, userToken);
     }
 
     return res.status(200).json({ reply });
