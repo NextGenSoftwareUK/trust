@@ -1,0 +1,604 @@
+<title>CMS Technical Spec</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+  :root {
+    --bg:        #F4F6FB;
+    --bg-subtle: #EAECF4;
+    --bg-code:   #E4E7F0;
+    --ink:       #18243A;
+    --body:      #3A4D66;
+    --muted:     #7080A0;
+    --rule:      #CDD5E4;
+    --accent:    #2358B8;
+    --accent-bg: #E8EEFA;
+    --white:     #FFFFFF;
+    --success:   #1B6B5A;
+    --success-bg:#E6F4F0;
+    --warn:      #7B4E12;
+    --warn-bg:   #FDF0DC;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:        #111825;
+      --bg-subtle: #192237;
+      --bg-code:   #1E2A40;
+      --ink:       #D8E3F2;
+      --body:      #8FA8C8;
+      --muted:     #5A7295;
+      --rule:      #243350;
+      --accent:    #5A8FE0;
+      --accent-bg: #14213A;
+      --white:     #192237;
+      --success:   #3DB896;
+      --success-bg:#0F2920;
+      --warn:      #E2A44B;
+      --warn-bg:   #281A08;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg:        #111825;
+    --bg-subtle: #192237;
+    --bg-code:   #1E2A40;
+    --ink:       #D8E3F2;
+    --body:      #8FA8C8;
+    --muted:     #5A7295;
+    --rule:      #243350;
+    --accent:    #5A8FE0;
+    --accent-bg: #14213A;
+    --white:     #192237;
+    --success:   #3DB896;
+    --success-bg:#0F2920;
+    --warn:      #E2A44B;
+    --warn-bg:   #281A08;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--body);
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page { max-width: 800px; margin: 0 auto; padding: 4rem 2rem 6rem; }
+
+  .doc-header {
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 2.25rem;
+    margin-bottom: 3rem;
+  }
+
+  .doc-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.85rem;
+  }
+
+  .doc-title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(2rem, 4.5vw, 3rem);
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.1;
+    text-wrap: balance;
+    margin-bottom: 0.85rem;
+  }
+
+  .doc-subtitle { font-size: 0.95rem; color: var(--muted); max-width: 560px; }
+
+  .doc-meta {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+    font-size: 0.8rem;
+    color: var(--muted);
+    flex-wrap: wrap;
+    gap: 1.5rem 2.5rem;
+  }
+
+  .doc-meta strong {
+    display: block;
+    font-weight: 600;
+    color: var(--body);
+    margin-bottom: 0.1rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  section { margin-bottom: 3rem; }
+
+  .section-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.7rem;
+  }
+
+  h2 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 1.65rem;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.2;
+    text-wrap: balance;
+    margin-bottom: 0.9rem;
+  }
+
+  h3 {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: 0.02em;
+    margin: 1.5rem 0 0.5rem;
+  }
+
+  p { margin-bottom: 0.9rem; }
+  p:last-child { margin-bottom: 0; }
+
+  /* Code blocks */
+  .code-wrap { overflow-x: auto; margin: 1rem 0; }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--rule);
+    border-radius: 5px;
+    padding: 1.1rem 1.25rem;
+    font-family: 'IBM Plex Mono', 'Cascadia Code', 'Fira Code', monospace;
+    font-size: 0.8rem;
+    line-height: 1.65;
+    color: var(--ink);
+    white-space: pre;
+    min-width: 0;
+  }
+
+  code {
+    font-family: 'IBM Plex Mono', 'Cascadia Code', monospace;
+    font-size: 0.82em;
+    background: var(--bg-code);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+    color: var(--accent);
+  }
+
+  pre code { background: none; padding: 0; border-radius: 0; color: inherit; font-size: 1em; }
+
+  /* Callout */
+  .callout {
+    background: var(--accent-bg);
+    border-left: 3px solid var(--accent);
+    padding: 1rem 1.25rem;
+    border-radius: 0 4px 4px 0;
+    margin: 1.25rem 0;
+    font-size: 0.88rem;
+  }
+
+  .callout p { color: var(--body); }
+  .callout strong { color: var(--ink); }
+
+  /* Tables */
+  .table-wrap { overflow-x: auto; margin: 1.25rem 0; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  thead th {
+    text-align: left;
+    padding: 0.55rem 0.9rem;
+    background: var(--bg-subtle);
+    color: var(--muted);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  tbody tr { border-bottom: 1px solid var(--rule); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--bg-subtle); }
+  td { padding: 0.75rem 0.9rem; color: var(--body); vertical-align: top; }
+  td:first-child { font-weight: 500; color: var(--ink); }
+
+  /* Endpoint list */
+  .endpoints { list-style: none; margin: 1rem 0; display: flex; flex-direction: column; gap: 0.75rem; }
+
+  .endpoint {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.6rem 1rem;
+    align-items: start;
+    padding: 0.85rem 1rem;
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-radius: 5px;
+    font-size: 0.85rem;
+  }
+
+  .method {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    margin-top: 0.1rem;
+  }
+
+  .method-get  { background: var(--success-bg); color: var(--success); }
+  .method-post { background: var(--accent-bg);  color: var(--accent); }
+
+  .endpoint-url {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .endpoint-desc {
+    grid-column: 2;
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 0.15rem;
+    line-height: 1.5;
+  }
+
+  .endpoint-note {
+    grid-column: 2;
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 0.2rem;
+    font-style: italic;
+  }
+
+  hr { border: none; border-top: 1px solid var(--rule); margin: 2.5rem 0; }
+
+  .badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+
+  .badge-a { background: var(--accent-bg); color: var(--accent); }
+  .badge-b { background: var(--success-bg); color: var(--success); }
+  .badge-c { background: var(--warn-bg); color: var(--warn); }
+
+  .toc {
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2.5rem;
+    font-size: 0.85rem;
+  }
+
+  .toc-title {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .toc ol { padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.3rem; }
+  .toc a { color: var(--accent); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+
+  .doc-footer {
+    margin-top: 4rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    color: var(--muted);
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 560px) {
+    .page { padding: 2.5rem 1.25rem 4rem; }
+    .endpoint { grid-template-columns: 1fr; }
+    .method { width: fit-content; }
+    .endpoint-desc, .endpoint-note { grid-column: 1; }
+    .doc-footer { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+
+<div class="page">
+
+  <header class="doc-header">
+    <p class="doc-label">Technical specification · SovereignTrust CMS</p>
+    <h1 class="doc-title">Implementation Details</h1>
+    <p class="doc-subtitle">How the CMS will be built, what the data model looks like, and which API endpoints are involved. Companion to the client proposal.</p>
+    <div class="doc-meta">
+      <div><strong>Prepared by</strong> NextGenSoftware</div>
+      <div><strong>Date</strong> August 2026</div>
+      <div><strong>Audience</strong> Technical stakeholders</div>
+      <div><strong>Relates to</strong> cms-proposal.html</div>
+    </div>
+  </header>
+
+  <!-- TOC -->
+  <nav class="toc">
+    <div class="toc-title">Contents</div>
+    <ol>
+      <li><a href="#architecture">Architecture overview</a></li>
+      <li><a href="#data-model">Data model — content as holons</a></li>
+      <li><a href="#option-a">Option A: Content CMS</a></li>
+      <li><a href="#option-b">Option B: Admin Dashboard</a></li>
+      <li><a href="#option-c">Option C: Trust Template Builder</a></li>
+      <li><a href="#api">API endpoints</a></li>
+      <li><a href="#auth">Auth and permissions</a></li>
+      <li><a href="#deployment">Deployment notes</a></li>
+    </ol>
+  </nav>
+
+  <!-- ARCHITECTURE -->
+  <section id="architecture">
+    <p class="section-label">Overview</p>
+    <h2>Architecture</h2>
+    <p>SovereignTrust runs on Vercel (frontend + serverless API) with OASIS as the data and identity layer. The CMS will extend this existing pattern — no new infrastructure, no new vendors. Content is stored as OASIS holons in MongoDB (the same store the trust documents use), managed through new serverless functions that follow the same auth and error-handling conventions as the existing <code>trust-save.js</code> and <code>trust-load.js</code> endpoints.</p>
+    <p>The admin UI will be a new section of the existing trust site — same Next.js codebase, gated behind the existing JWT-based auth middleware.</p>
+    <div class="callout">
+      <p><strong>Key dependency:</strong> All three options rely on the OASIS holon fix currently on the <code>Fixing-Stateless-Holon-Update</code> branch. Content holons use the same <code>IsNewHolon</code> / <code>Id</code> contract as trust document holons — this branch must be merged before CMS work goes to production.</p>
+    </div>
+  </section>
+
+  <!-- DATA MODEL -->
+  <section id="data-model">
+    <p class="section-label">Data model</p>
+    <h2>Content as holons</h2>
+    <p>Each piece of manageable content is an OASIS holon stored in MongoDB. The <code>HolonType</code> enum identifies what kind of content it is; the <code>MetaData</code> dictionary holds the actual content fields. This avoids any schema changes — the existing MongoDB collection and OASIS API handle everything.</p>
+
+    <h3>Content holon types</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>HolonType</th>
+            <th>Scope</th>
+            <th>Key MetaData fields</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>CMSPage</code></td>
+            <td><span class="badge badge-a">A</span></td>
+            <td><code>slug</code>, <code>title</code>, <code>body</code>, <code>seoDescription</code></td>
+          </tr>
+          <tr>
+            <td><code>CMSFaq</code></td>
+            <td><span class="badge badge-a">A</span></td>
+            <td><code>question</code>, <code>answer</code>, <code>order</code>, <code>category</code></td>
+          </tr>
+          <tr>
+            <td><code>PricingPlan</code></td>
+            <td><span class="badge badge-a">A</span></td>
+            <td><code>name</code>, <code>description</code>, <code>price</code>, <code>features</code> (JSON array)</td>
+          </tr>
+          <tr>
+            <td><code>TrustTemplate</code></td>
+            <td><span class="badge badge-c">C</span></td>
+            <td><code>templateName</code>, <code>fields</code> (JSON array of field defs), <code>pdfLayout</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Example: a FAQ holon</h3>
+    <div class="code-wrap">
+<pre>{
+  "HolonType": "CMSFaq",
+  "Name": "What is a bare trust?",
+  "MetaData": {
+    "question": "What is a bare trust?",
+    "answer":   "A bare trust is the simplest form of trust...",
+    "order":    1,
+    "category": "basics"
+  }
+}</pre>
+    </div>
+
+    <h3>Example: a trust template field definition</h3>
+    <div class="code-wrap">
+<pre>{
+  "HolonType": "TrustTemplate",
+  "Name": "Bare Trust",
+  "MetaData": {
+    "templateName": "Bare Trust",
+    "fields": [
+      { "id": "settlor_name",   "label": "Settlor full name", "type": "text",  "required": true  },
+      { "id": "trust_value",    "label": "Trust value (£)",   "type": "number","required": true  },
+      { "id": "special_notes",  "label": "Special conditions","type": "textarea","required": false }
+    ],
+    "pdfLayout": "bare-trust-v1"
+  }
+}</pre>
+    </div>
+  </section>
+
+  <!-- OPTION A -->
+  <section id="option-a">
+    <p class="section-label">Option A</p>
+    <h2>Content CMS</h2>
+    <p>The simplest module. An admin screen lists all <code>CMSPage</code>, <code>CMSFaq</code>, and <code>PricingPlan</code> holons. Clicking any item opens a form editor. Saving calls the <code>POST /api/cms-save</code> endpoint (see <a href="#api">API endpoints</a>), which upserts the holon via OASIS. The frontend pages that display this content (education, FAQ, pricing) fetch their data from <code>GET /api/cms-load</code> at build time or on demand — whichever fits the Vercel cache strategy for the page.</p>
+
+    <h3>Admin UI — editor screen</h3>
+    <p>Minimal: a list view (name + last-edited date) and a form view. The form fields are generated from the holon type — <code>CMSPage</code> shows title + body textarea + SEO description, <code>CMSFaq</code> shows question + answer + order, and so on. No rich text editor is needed in the first release — plain textarea is sufficient for the expected content volume.</p>
+
+    <h3>Frontend integration</h3>
+    <p>Each public-facing page currently has its content hardcoded. After Option A these pages will call <code>GET /api/cms-load?type=CMSPage&amp;slug=education</code> (or the relevant type + identifier) and render the returned content. A build-time fetch with a short stale-while-revalidate window (e.g. 60 seconds) is the recommended approach — content changes go live without a redeploy.</p>
+  </section>
+
+  <!-- OPTION B -->
+  <section id="option-b">
+    <p class="section-label">Option B</p>
+    <h2>Admin Dashboard</h2>
+    <p>A read/manage view of all holons in the system — primarily trust documents and user accounts. The dashboard calls the existing <code>trust-load.js</code> endpoint with an admin-scoped JWT (no new data access is needed; the admin role is already modelled in OASIS). Results are displayed in a searchable, filterable table.</p>
+
+    <h3>What the dashboard shows</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>View</th>
+            <th>Data source</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>All trusts</td>
+            <td>OASIS holons, <code>HolonType.Trust</code></td>
+            <td>View, download PDF, change status</td>
+          </tr>
+          <tr>
+            <td>All users</td>
+            <td>OASIS avatars</td>
+            <td>View profile, disable account</td>
+          </tr>
+          <tr>
+            <td>Support queue</td>
+            <td>Holons flagged for review</td>
+            <td>Mark resolved, add admin notes</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>New endpoint required</h3>
+    <p>A single new endpoint: <code>GET /api/admin-list</code> — returns paginated holons filtered by type and optional search query, authorised by admin-role JWT. The existing load endpoint returns one holon by ID; the admin endpoint needs to return lists with server-side pagination.</p>
+  </section>
+
+  <!-- OPTION C -->
+  <section id="option-c">
+    <p class="section-label">Option C</p>
+    <h2>Trust Template Builder</h2>
+    <p>The largest module. A drag-and-drop form builder that writes <code>TrustTemplate</code> holons. Each template defines the fields shown in the trust creation wizard and the layout of the generated PDF.</p>
+
+    <h3>Field type support (v1)</h3>
+    <p><code>text</code>, <code>textarea</code>, <code>number</code>, <code>date</code>, <code>select</code> (dropdown with configurable options), <code>checkbox</code>. Each field has: label, placeholder, required flag, validation rules (min/max length, regex pattern), and a PDF label (which can differ from the form label).</p>
+
+    <h3>PDF generation</h3>
+    <p>The existing trust PDF generation code reads from a fixed schema. After Option C this needs to be made template-aware — it should read the field definitions from the <code>TrustTemplate</code> holon and render them in the order and layout specified by <code>pdfLayout</code>. The <code>pdfLayout</code> value in v1 can be a named layout key (e.g. <code>"bare-trust-v1"</code>) that maps to a predefined PDF template; a fully dynamic layout builder is a potential v2 feature.</p>
+
+    <h3>Trust creation wizard</h3>
+    <p>The existing trust creation form is currently driven by hardcoded field lists. After Option C it will fetch the <code>TrustTemplate</code> holon for the selected trust type and render the fields dynamically. This is the largest integration point: the wizard UI, the save logic, and the validation all need to work from the template definition rather than static code.</p>
+  </section>
+
+  <!-- API -->
+  <section id="api">
+    <p class="section-label">New endpoints</p>
+    <h2>API endpoints</h2>
+    <p>All endpoints follow the existing Vercel serverless function pattern. Auth is handled by the same JWT middleware used in <code>trust-save.js</code>. All requests and responses are JSON. OASIS errors are mapped to HTTP status codes consistently with the existing API.</p>
+
+    <ul class="endpoints">
+      <li class="endpoint">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-url">/api/cms-load</span>
+        <span class="endpoint-desc">Returns one or more CMS content holons. Query params: <code>type</code> (required, e.g. <code>CMSPage</code>), <code>slug</code> or <code>id</code> (optional — omit to return all of that type). Public endpoint, no auth required.</span>
+      </li>
+      <li class="endpoint">
+        <span class="method method-post">POST</span>
+        <span class="endpoint-url">/api/cms-save</span>
+        <span class="endpoint-desc">Creates or updates a CMS content holon. Body: <code>{ holonType, name, metaData }</code> — plus <code>id</code> and <code>IsNewHolon: false</code> when updating an existing record. Admin JWT required.</span>
+        <span class="endpoint-note">Follows the same IsNewHolon contract as trust-save.js — new holons omit id; updates include id and IsNewHolon: false.</span>
+      </li>
+      <li class="endpoint">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-url">/api/admin-list</span>
+        <span class="endpoint-desc">Returns a paginated list of holons by type. Query params: <code>type</code>, <code>page</code>, <code>pageSize</code>, <code>q</code> (search). Admin JWT required. Option B only.</span>
+      </li>
+      <li class="endpoint">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-url">/api/template-load</span>
+        <span class="endpoint-desc">Returns the <code>TrustTemplate</code> holon for a given trust type. Used by the trust creation wizard to build its form dynamically. Query params: <code>templateName</code>. Public endpoint. Option C only.</span>
+      </li>
+      <li class="endpoint">
+        <span class="method method-post">POST</span>
+        <span class="endpoint-url">/api/template-save</span>
+        <span class="endpoint-desc">Creates or updates a <code>TrustTemplate</code> holon. Same body shape as <code>cms-save</code>. Admin JWT required. Option C only.</span>
+      </li>
+    </ul>
+  </section>
+
+  <!-- AUTH -->
+  <section id="auth">
+    <p class="section-label">Auth and permissions</p>
+    <h2>Auth model</h2>
+    <p>The existing auth model (OASIS avatars, JWT issued on login, verified by middleware in each API function) is unchanged. The CMS adds one new role check: admin-gated endpoints verify that the <code>avatarId</code> in the JWT has the <code>GlobalAdmin</code> or <code>PlatformAdmin</code> role in OASIS. No new auth infrastructure is needed.</p>
+
+    <h3>Role mapping</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Role</th><th>Can access</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Any authenticated user</td>
+            <td>Their own trust documents, their own account</td>
+          </tr>
+          <tr>
+            <td><code>GlobalAdmin</code> / <code>PlatformAdmin</code></td>
+            <td>All CMS save endpoints, admin-list, template-save, all trust documents</td>
+          </tr>
+          <tr>
+            <td>Anonymous</td>
+            <td>cms-load (public content), template-load (public templates)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- DEPLOYMENT -->
+  <section id="deployment">
+    <p class="section-label">Deployment</p>
+    <h2>Deployment notes</h2>
+
+    <h3>Prerequisites</h3>
+    <p>Before any CMS code is deployed to production: the <code>Fixing-Stateless-Holon-Update</code> branch must be tested and merged. All CMS holons use the same OASIS save path as trust documents — a broken holon insert would silently discard content.</p>
+
+    <h3>MongoDB</h3>
+    <p>No schema changes required. CMS content holons land in the same <code>Holon</code> collection as trust documents, distinguished by <code>HolonType</code>. The first time a CMS holon is saved, OASIS creates it automatically. No migration scripts needed.</p>
+
+    <h3>Vercel environment</h3>
+    <p>The new API functions follow the same pattern as existing ones: no new environment variables, no new Vercel projects. Deploy alongside the existing functions. Option B's <code>admin-list</code> endpoint may need an index on <code>HolonType</code> + <code>CreatedDate</code> in MongoDB for acceptable query performance at scale — worth adding before launch.</p>
+
+    <h3>Rollout order</h3>
+    <p>Recommended: Option A → Option B → Option C. Each option is independently deployable. Option A delivers the highest immediate value (content autonomy) in the shortest time. Option B adds admin visibility. Option C is a separate phase and should not block A or B.</p>
+  </section>
+
+  <footer class="doc-footer">
+    <span>NextGenSoftware · SovereignTrust CMS Technical Spec · August 2026</span>
+    <span>Internal / technical distribution only</span>
+  </footer>
+
+</div>

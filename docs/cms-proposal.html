@@ -1,0 +1,712 @@
+<title>CMS on OASIS</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --bg:        #F5F7FA;
+    --bg-subtle: #ECEEF3;
+    --ink:       #1A2332;
+    --body:      #3D4F66;
+    --muted:     #7A8FA6;
+    --rule:      #D0D8E4;
+    --accent:    #2B6CB0;
+    --accent-bg: #EBF2FA;
+    --white:     #FFFFFF;
+    --tag-rec:       #1B6B5A;
+    --tag-rec-bg:    #E6F4F0;
+    --tag-large:     #7B4E12;
+    --tag-large-bg:  #FDF0DC;
+    --saving:        #8B1A1A;
+    --saving-bg:     #FDF0F0;
+    --saving-border: #E8C4C4;
+    --ff-bg:         #0F2A1A;
+    --ff-accent:     #3DD68C;
+    --ff-border:     #1E4A30;
+    --ff-text:       #A8D5B8;
+    --ff-ink:        #E8F5EE;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:        #111925;
+      --bg-subtle: #1A2335;
+      --ink:       #D9E3EF;
+      --body:      #92A8C0;
+      --muted:     #5A7290;
+      --rule:      #263347;
+      --accent:    #5B9CD6;
+      --accent-bg: #152236;
+      --white:     #1A2638;
+      --tag-rec:       #3DB896;
+      --tag-rec-bg:    #0F2920;
+      --tag-large:     #E2A44B;
+      --tag-large-bg:  #281A08;
+      --saving:        #E88080;
+      --saving-bg:     #2A1010;
+      --saving-border: #4A2020;
+      --ff-bg:         #0A1F12;
+      --ff-accent:     #3DD68C;
+      --ff-border:     #163825;
+      --ff-text:       #7AB898;
+      --ff-ink:        #D4EDE0;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg:        #111925;
+    --bg-subtle: #1A2335;
+    --ink:       #D9E3EF;
+    --body:      #92A8C0;
+    --muted:     #5A7290;
+    --rule:      #263347;
+    --accent:    #5B9CD6;
+    --accent-bg: #152236;
+    --white:     #1A2638;
+    --tag-rec:       #3DB896;
+    --tag-rec-bg:    #0F2920;
+    --tag-large:     #E2A44B;
+    --tag-large-bg:  #281A08;
+    --saving:        #E88080;
+    --saving-bg:     #2A1010;
+    --saving-border: #4A2020;
+    --ff-bg:         #0A1F12;
+    --ff-accent:     #3DD68C;
+    --ff-border:     #163825;
+    --ff-text:       #7AB898;
+    --ff-ink:        #D4EDE0;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--body);
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    font-size: 1rem;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page { max-width: 780px; margin: 0 auto; padding: 4rem 2rem 6rem; }
+
+  .doc-header {
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 2.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .doc-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+
+  .doc-title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(2.4rem, 5vw, 3.6rem);
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.1;
+    text-wrap: balance;
+    margin-bottom: 1rem;
+  }
+
+  .doc-subtitle { font-size: 1.05rem; color: var(--muted); max-width: 560px; }
+
+  .doc-meta {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1.75rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--rule);
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+
+  .doc-meta strong {
+    display: block;
+    font-weight: 600;
+    color: var(--body);
+    margin-bottom: 0.1rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  section { margin-bottom: 3.5rem; }
+
+  .section-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+
+  h2 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 1.85rem;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.2;
+    text-wrap: balance;
+    margin-bottom: 1rem;
+  }
+
+  p { margin-bottom: 1rem; }
+  p:last-child { margin-bottom: 0; }
+
+  .callout {
+    background: var(--accent-bg);
+    border-left: 3px solid var(--accent);
+    padding: 1.25rem 1.5rem;
+    border-radius: 0 4px 4px 0;
+    margin: 1.5rem 0;
+  }
+
+  .callout p { color: var(--body); font-size: 0.95rem; }
+  .callout strong { color: var(--ink); }
+
+  /* Option definitions */
+  .option-defs { display: flex; flex-direction: column; gap: 0; margin: 1.5rem 0; }
+
+  .option-def {
+    display: grid;
+    grid-template-columns: 5rem 1fr;
+    gap: 0 1.5rem;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--rule);
+    align-items: start;
+  }
+
+  .option-def:last-child { border-bottom: none; }
+
+  .option-letter {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--accent);
+    line-height: 1;
+    padding-top: 0.2rem;
+  }
+
+  .option-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--ink);
+    margin-bottom: 0.25rem;
+  }
+
+  .option-def p { font-size: 0.88rem; color: var(--body); margin: 0; line-height: 1.6; }
+
+  /* Tables */
+  .table-wrap { overflow-x: auto; margin: 1.5rem 0; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  thead th {
+    text-align: left;
+    padding: 0.65rem 1rem;
+    background: var(--bg-subtle);
+    color: var(--muted);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  thead th:first-child { border-radius: 4px 0 0 0; }
+  thead th:last-child  { border-radius: 0 4px 0 0; }
+
+  tbody tr { border-bottom: 1px solid var(--rule); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--bg-subtle); }
+
+  td { padding: 0.9rem 1rem; color: var(--body); vertical-align: top; }
+  td:first-child { font-weight: 500; color: var(--ink); }
+
+  .scope-name { display: flex; align-items: flex-start; gap: 0.5rem; flex-wrap: wrap; }
+
+  .badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    white-space: nowrap;
+    margin-top: 0.1rem;
+  }
+
+  .badge-rec   { background: var(--tag-rec-bg);   color: var(--tag-rec); }
+  .badge-large { background: var(--tag-large-bg); color: var(--tag-large); }
+
+  .price { font-weight: 600; color: var(--ink); }
+
+  /* Comparison table */
+  .comparison-wrap { overflow-x: auto; margin: 1.5rem 0; }
+
+  .comparison {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .comparison thead th {
+    padding: 0.65rem 1rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--rule);
+    color: var(--muted);
+    text-align: left;
+  }
+
+  .comparison thead th:first-child { background: var(--bg-subtle); border-radius: 4px 0 0 0; }
+  .comparison thead .th-third      { background: var(--saving-bg); color: var(--saving); }
+  .comparison thead .th-oasis      { background: var(--tag-rec-bg); color: var(--tag-rec); }
+
+  .comparison tbody tr { border-bottom: 1px solid var(--rule); }
+  .comparison tbody tr:last-child { border-bottom: none; }
+  .comparison tbody tr:hover { background: var(--bg-subtle); }
+
+  .comparison td { padding: 0.9rem 1rem; color: var(--body); vertical-align: top; }
+  .comparison td:first-child { font-weight: 500; color: var(--ink); background: var(--bg-subtle); }
+  .comparison .td-third { color: var(--saving); font-weight: 500; }
+  .comparison .td-oasis { color: var(--tag-rec); font-weight: 600; }
+
+  .saving-note {
+    background: var(--saving-bg);
+    border: 1px solid var(--saving-border);
+    border-radius: 4px;
+    padding: 0.85rem 1.1rem;
+    font-size: 0.82rem;
+    color: var(--saving);
+    margin-top: 0.75rem;
+  }
+
+  /* What you get list */
+  .deliverables { list-style: none; margin: 1.25rem 0; display: flex; flex-direction: column; gap: 0; }
+
+  .deliverables li {
+    display: flex;
+    gap: 0.9rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--rule);
+    font-size: 0.9rem;
+    color: var(--body);
+    align-items: flex-start;
+  }
+
+  .deliverables li:last-child { border-bottom: none; }
+
+  .del-opt {
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-bg);
+    border-radius: 50%;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-top: 0.05rem;
+  }
+
+  .del-body strong { display: block; font-size: 0.88rem; font-weight: 600; color: var(--ink); margin-bottom: 0.15rem; }
+
+  /* Next steps */
+  .steps { counter-reset: step; list-style: none; margin-top: 1rem; }
+
+  .steps li {
+    counter-increment: step;
+    display: flex;
+    gap: 1rem;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--rule);
+    font-size: 0.92rem;
+    color: var(--body);
+    align-items: flex-start;
+  }
+
+  .steps li:last-child { border-bottom: none; }
+
+  .steps li::before {
+    content: counter(step);
+    flex-shrink: 0;
+    width: 1.6rem;
+    height: 1.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-subtle);
+    border: 1px solid var(--rule);
+    border-radius: 50%;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--muted);
+    margin-top: 0.1rem;
+  }
+
+  hr { border: none; border-top: 1px solid var(--rule); margin: 3rem 0; }
+
+  /* Friends & Family */
+  .ff-section {
+    background: var(--ff-bg);
+    border: 1px solid var(--ff-border);
+    border-radius: 8px;
+    padding: 2rem 2rem 1.75rem;
+    margin: 3rem 0;
+  }
+
+  .ff-eyebrow {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ff-accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .ff-title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--ff-ink);
+    margin-bottom: 0.6rem;
+    line-height: 1.2;
+  }
+
+  .ff-sub { font-size: 0.88rem; color: var(--ff-text); margin-bottom: 1.5rem; max-width: 520px; }
+
+  .ff-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .ff-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--ff-border);
+    border-radius: 6px;
+    padding: 1.1rem 1rem;
+    text-align: center;
+  }
+
+  .ff-option-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ff-text);
+    margin-bottom: 0.4rem;
+  }
+
+  .ff-option-name { font-size: 0.82rem; color: var(--ff-ink); margin-bottom: 0.75rem; line-height: 1.4; }
+
+  .ff-price {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: var(--ff-accent);
+    line-height: 1;
+    margin-bottom: 0.2rem;
+  }
+
+  .ff-was { font-size: 0.75rem; color: var(--ff-text); text-decoration: line-through; opacity: 0.7; }
+
+  .ff-note {
+    font-size: 0.78rem;
+    color: var(--ff-text);
+    border-top: 1px solid var(--ff-border);
+    padding-top: 1rem;
+    line-height: 1.55;
+  }
+
+  /* Footer */
+  .doc-footer {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.78rem;
+    color: var(--muted);
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 560px) {
+    .page { padding: 2.5rem 1.25rem 4rem; }
+    .doc-meta { flex-direction: column; gap: 1rem; }
+    .option-def { grid-template-columns: 3.5rem 1fr; }
+    .ff-grid { grid-template-columns: 1fr; }
+    .doc-footer { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+
+<div class="page">
+
+  <header class="doc-header">
+    <p class="doc-label">Proposal · SovereignTrust</p>
+    <h1 class="doc-title">Content Management<br>on OASIS</h1>
+    <p class="doc-subtitle">A proposal for adding content management to the SovereignTrust platform — no third-party tools required.</p>
+    <div class="doc-meta">
+      <div><strong>Prepared by</strong> NextGenSoftware</div>
+      <div><strong>Date</strong> August 2026</div>
+      <div><strong>Status</strong> For client review</div>
+    </div>
+  </header>
+
+  <!-- BACKGROUND -->
+  <section>
+    <p class="section-label">Background</p>
+    <h2>Why we don't need a third-party CMS</h2>
+    <p>Most platforms bring in an off-the-shelf content management system — products like Sanity, Contentful, or Prismic — when they need the ability to update website content without involving a developer. For SovereignTrust, that would mean paying for a separate subscription, learning a separate tool, and creating a dependency on an outside vendor.</p>
+    <p>SovereignTrust already runs on OASIS — a platform that has its own flexible data storage, its own user system, and its own API. We can build content management directly on top of what is already there. The result is simpler, cheaper, and entirely under your control.</p>
+    <div class="callout">
+      <p><strong>In plain terms:</strong> your team will be able to update page copy, FAQs, pricing, and trust form templates from a simple admin screen — the same admin area you already have — with no third-party logins, no subscriptions, and no developer needed for routine content changes.</p>
+    </div>
+  </section>
+
+  <!-- WHAT A B C MEANS -->
+  <section>
+    <p class="section-label">The three options</p>
+    <h2>What's included in each option</h2>
+    <p>The work is split into three modules. Each one can be delivered on its own or combined with the others — you choose the scope that fits right now, and can add more later.</p>
+
+    <div class="option-defs">
+      <div class="option-def">
+        <div class="option-letter">A</div>
+        <div>
+          <div class="option-name">Content CMS</div>
+          <p>Your team can update the site's text — the education page, FAQs, pricing copy, and legal disclaimers — without involving a developer. Changes go live immediately from a simple editor screen.</p>
+        </div>
+      </div>
+      <div class="option-def">
+        <div class="option-letter">B</div>
+        <div>
+          <div class="option-name">Admin Dashboard</div>
+          <p>A full view of everything happening on the platform. See all user trust documents, search by name or status, view account details, handle support queries, and manage user records — all in one place.</p>
+        </div>
+      </div>
+      <div class="option-def">
+        <div class="option-letter">C</div>
+        <div>
+          <div class="option-name">Trust Template Builder</div>
+          <p>Create entirely new types of trust, add or reorder the fields on existing ones, set what's required, and control how the final PDF looks — all without any code changes or developer involvement. This is the most powerful of the three modules and the largest piece of work.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCOPE AND COST -->
+  <section>
+    <p class="section-label">Scope and cost</p>
+    <h2>Options and pricing</h2>
+    <p>A and B together are the recommended starting point — they give you a working content editor and a complete admin view of the platform. C can be added as a follow-on phase whenever it's needed.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:26%">Option</th>
+            <th>What you get</th>
+            <th style="width:13%">Timeline</th>
+            <th style="width:14%">Cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>A — Content CMS</td>
+            <td>Edit site text, FAQs, and pricing from the admin area. No developer needed for copy changes.</td>
+            <td>3–5 days</td>
+            <td><span class="price">£800–£1,500</span></td>
+          </tr>
+          <tr>
+            <td>B — Admin Dashboard</td>
+            <td>Full platform view — all trusts, all users, search, filters, account management.</td>
+            <td>1–1.5 weeks</td>
+            <td><span class="price">£1,500–£3,500</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="scope-name">
+                A + B
+                <span class="badge badge-rec">Recommended</span>
+              </div>
+            </td>
+            <td>Both modules above — the complete content and admin system.</td>
+            <td>1–2 weeks</td>
+            <td><span class="price">£2,000–£5,000</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="scope-name">
+                C — Template Builder
+                <span class="badge badge-large">Larger scope</span>
+              </div>
+            </td>
+            <td>Create and edit trust types and their form fields without any code. The most powerful option.</td>
+            <td>3–4 weeks</td>
+            <td><span class="price">£6,000–£9,000</span></td>
+          </tr>
+          <tr>
+            <td>A + B + C</td>
+            <td>The complete CMS — content editor, admin dashboard, and template builder.</td>
+            <td>4–6 weeks</td>
+            <td><span class="price">£8,000–£14,000</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:0.82rem; color:var(--muted); margin-top:0.5rem;">All figures exclude VAT. No ongoing subscription or licence costs of any kind.</p>
+  </section>
+
+  <!-- THIRD PARTY COMPARISON -->
+  <section>
+    <p class="section-label">Why this approach</p>
+    <h2>Compared to an off-the-shelf CMS</h2>
+    <p>For context, here is how the same scope would look if we built it using a third-party CMS product instead. The extra cost comes from the time spent wiring a separate system into your existing platform — auth, data, accounts — all of which are already in place on OASIS.</p>
+
+    <div class="comparison-wrap">
+      <table class="comparison">
+        <thead>
+          <tr>
+            <th style="width:22%">Scope</th>
+            <th class="th-third" style="width:39%">Using a third-party CMS</th>
+            <th class="th-oasis" style="width:39%">Built on OASIS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>A + B</td>
+            <td class="td-third">3–4 weeks · £6,000–£10,000<br><span style="font-size:0.78rem;opacity:0.85;">Plus £0–200/month ongoing</span></td>
+            <td class="td-oasis">1–2 weeks · £2,000–£5,000<br><span style="font-size:0.78rem;opacity:0.85;">No ongoing cost</span></td>
+          </tr>
+          <tr>
+            <td>A + B + C</td>
+            <td class="td-third">6–10 weeks · £12,000–£20,000+<br><span style="font-size:0.78rem;opacity:0.85;">Plus £0–200/month ongoing</span></td>
+            <td class="td-oasis">4–6 weeks · £8,000–£14,000<br><span style="font-size:0.78rem;opacity:0.85;">No ongoing cost</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="saving-note">
+      <strong>Potential saving: £4,000–£6,000</strong> on A+B alone, plus eliminating an ongoing subscription cost of up to £2,400 a year.
+    </div>
+  </section>
+
+  <!-- WHAT YOU GET -->
+  <section>
+    <p class="section-label">Deliverables</p>
+    <h2>What you'll have when we're done</h2>
+
+    <ul class="deliverables">
+      <li>
+        <div class="del-opt">A</div>
+        <div class="del-body">
+          <strong>Content editor in your admin area</strong>
+          Update the education page, FAQs, pricing copy, and legal text — live immediately, no developer needed.
+        </div>
+      </li>
+      <li>
+        <div class="del-opt">A</div>
+        <div class="del-body">
+          <strong>Dynamic pages</strong>
+          The education, pricing, and FAQ pages will pull their content from the CMS rather than having it hardcoded — so they stay up to date the moment you make a change.
+        </div>
+      </li>
+      <li>
+        <div class="del-opt">B</div>
+        <div class="del-body">
+          <strong>Full platform admin dashboard</strong>
+          See every trust document across the platform. Filter by user, status, or date. View the full detail of any record. Manage user accounts and handle support queries in one place.
+        </div>
+      </li>
+      <li>
+        <div class="del-opt">C</div>
+        <div class="del-body">
+          <strong>Trust template builder</strong>
+          Create new trust types, define their fields, set validation rules, and control the PDF layout — all from the admin area. No developer involvement required for new trust products.
+        </div>
+      </li>
+      <li>
+        <div class="del-opt" style="background:var(--bg-subtle);color:var(--muted);">✓</div>
+        <div class="del-body">
+          <strong>Handover and training</strong>
+          A walkthrough session so your team can manage content and administer the platform independently from day one.
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <hr>
+
+  <!-- NEXT STEPS -->
+  <section>
+    <p class="section-label">Next steps</p>
+    <h2>How to proceed</h2>
+    <ol class="steps">
+      <li>Let us know which option you'd like to go ahead with, and we'll agree a fixed price within the range.</li>
+      <li>We'll put together a short list of which pages and content areas to include in the first release — this typically takes half a day and keeps the scope clear from the start.</li>
+      <li>We'll share designs for the admin screens for your sign-off before building begins.</li>
+      <li>Build, test, and handover — including a walkthrough session so your team is confident managing everything independently.</li>
+    </ol>
+  </section>
+
+  <!-- FRIENDS & FAMILY -->
+  <div class="ff-section">
+    <p class="ff-eyebrow">Friends &amp; Family pricing</p>
+    <h2 class="ff-title">Special rate for you</h2>
+    <p class="ff-sub">Because this is a project we care about, here is a flat-fee friends and family price for each option — no ranges, no surprises.</p>
+
+    <div class="ff-grid">
+      <div class="ff-card">
+        <div class="ff-option-label">Option A</div>
+        <div class="ff-option-name">Content CMS</div>
+        <div class="ff-price">£222</div>
+        <div class="ff-was">was £800–£1,500</div>
+      </div>
+      <div class="ff-card">
+        <div class="ff-option-label">Option B</div>
+        <div class="ff-option-name">Admin Dashboard</div>
+        <div class="ff-price">£333</div>
+        <div class="ff-was">was £1,500–£3,500</div>
+      </div>
+      <div class="ff-card">
+        <div class="ff-option-label">Option C</div>
+        <div class="ff-option-name">Template Builder</div>
+        <div class="ff-price">£444</div>
+        <div class="ff-was">was £6,000–£9,000</div>
+      </div>
+    </div>
+
+    <p class="ff-note">These prices are fixed and all-inclusive — no VAT, no extras. Options can be taken individually or in any combination. This rate reflects our relationship, not the market value of the work.</p>
+  </div>
+
+  <footer class="doc-footer">
+    <span>NextGenSoftware · SovereignTrust CMS Proposal · August 2026</span>
+    <span>Prepared for client review — not for distribution</span>
+  </footer>
+
+</div>
