@@ -25,9 +25,11 @@ module.exports = async function handler(req, res) {
     Id: id || nullGuid,
     Name: name,
     Description: `SovereignTrust trust profile (${status || 'Draft'})`,
-    HolonType: 141,
+    HolonType: 'Custom',
+    CustomHolonType: 'TRUST_DOCUMENT',
     ParentHolonId: avatarId,
     MetaData: {
+      trustType: 'trust',
       trustData: JSON.stringify(data),
       status: status || 'Draft',
       updatedAt: new Date().toISOString()

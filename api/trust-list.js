@@ -47,14 +47,15 @@ module.exports = async function handler(req, res) {
 
   try {
     const oasis = createClient(token);
-    const { isError, message, result } = await oasis.data.loadHolonsForParent({ Id: avatarId, HolonType: 'Trust' });
+    const { isError, message, result } = await oasis.data.loadHolonsForParent({ Id: avatarId, HolonType: 'Custom', LoadChildren: false, Recursive: false });
 
     if (isError) {
       return res.status(400).json({ error: message || 'Failed to load trusts.' });
     }
 
     const holons = Array.isArray(result) ? result : [];
-    return res.status(200).json({ success: true, trusts: holons.map(parseHolon) });
+    const trustHolons = holons.filter(h => (h.metaData || {}).trustType === 'trust');
+    return res.status(200).json({ success: true, trusts: trustHolons.map(parseHolon) });
 
   } catch (err) {
     console.error('[trust-list]', err);
