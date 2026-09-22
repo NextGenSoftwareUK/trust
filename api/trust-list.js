@@ -52,8 +52,7 @@ module.exports = async function handler(req, res) {
       MetaValue: 'trust',
       HolonType: 'Custom',
       LoadChildren: false,
-      Recursive: false,
-      SearchOnlyForCurrentAvatar: true
+      Recursive: false
     });
 
     if (isError) {
