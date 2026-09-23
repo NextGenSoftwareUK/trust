@@ -52,7 +52,8 @@ module.exports = async function handler(req, res) {
       MetaValue: 'trust',
       HolonType: 'Custom',
       LoadChildren: false,
-      Recursive: false
+      Recursive: false,
+      IncludePublic: false
     });
 
     if (isError) {
