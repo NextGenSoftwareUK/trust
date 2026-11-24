@@ -47,7 +47,14 @@ module.exports = async function handler(req, res) {
 
   try {
     const oasis = createClient(token);
-    const { isError, message, result } = await oasis.data.loadHolonsForParent({ Id: avatarId, HolonType: 'Trust' });
+    const { isError, message, result } = await oasis.data.loadHolonsByMetaData({
+      MetaKey: 'trustType',
+      MetaValue: 'trust',
+      HolonType: 'Custom',
+      LoadChildren: false,
+      Recursive: false,
+      IncludePublic: false
+    });
 
     if (isError) {
       return res.status(400).json({ error: message || 'Failed to load trusts.' });

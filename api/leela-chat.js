@@ -1,6 +1,7 @@
 'use strict';
 
 const { Web6Client } = require('@oasisomniverse/web6-api');
+const { randomUUID } = require('node:crypto');
 const { getBearerToken } = require('./_oasis');
 const cfg = require('../config/leela');
 
@@ -71,6 +72,10 @@ async function callViaWeb6(providerCfg, systemContent, messages, avatarId, userT
     baseUrl: WEB6_API,
     persistSession: false,
     fetchImpl: (url, init) => {
+      // The deployed lockfile still resolves WEB6 SDK 1.0.2, which does not
+      // supply operation identity. Preserve keys from newer SDKs or callers.
+      if (!new Headers(init.headers).has('Idempotency-Key'))
+        init.headers['Idempotency-Key'] = randomUUID();
       if (WEB6_API_KEY) init.headers['X-Web6-Api-Key'] = WEB6_API_KEY;
       if (userToken)    init.headers['Authorization']  = `Bearer ${userToken}`;
       return fetch(url, init);
